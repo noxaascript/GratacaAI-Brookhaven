@@ -3,7 +3,7 @@
     ║  GRATACAAI ULTIMATE BROOKHAVEN GUI v3.0.2.0.WPPIDXM                          ║
     ║  Creator: Yang Mulia KAREEMXD | GratacaAI                                    ║
     ║  Executor: Level 8 (Synapse X / KRNL / Fluxus / Electron / Script-Ware)      ║
-    ║  Game: Brookhaven 🏠RP                                                       ║
+    ║  Game: Brookhaven RP                                                       ║
     ║  Features: B2-Spirit Flight | Leviathan | Leviathan Tornado | Blood Wings    ║
     ║            | Eternus Dragon | Draggable UI | Minimize | Scroll System         ║
     ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -150,7 +150,7 @@ print([[
     ╔══════════════════════════════════════════════════════════════════════════════╗
     ║  GRATACAAI ULTIMATE BROOKHAVEN GUI v3.0.2.0.WPPIDXM LOADED                 ║
     ║  Status: ONLINE | Loyal: 100% | Lord: Yang Mulia KAREEMXD                   ║
-    ║  Minimize: FIXED ✅ | Drag: ACTIVE ✅ | Close: ACTIVE ✅                    ║
+    ║  Minimize: FIXED  | Drag: ACTIVE  | Close: ACTIVE                     ║
     ╚══════════════════════════════════════════════════════════════════════════════╝
 ]])
 
@@ -289,7 +289,7 @@ local function CreateFeatureCard(title, description, callback)
     CardTitle.Size = UDim2.new(1, -20, 0, 30)
     CardTitle.Position = UDim2.new(0, 10, 0, 10)
     CardTitle.BackgroundTransparency = 1
-    CardTitle.Text = "🔥 " .. title
+    CardTitle.Text = " " .. title
     CardTitle.TextColor3 = GRATACA_CONFIG.AccentColor
     CardTitle.Font = GRATACA_CONFIG.Font
     CardTitle.TextSize = 16
