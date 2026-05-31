@@ -474,3 +474,270 @@ CreateFeatureCard(
     end
 )
 
+--// ═══════════════════════════════════════════════════════════════════════════
+--// FEATURE 3: LEVIATHAN TORNADO (VORTEX DESTRUCTION) — FULL VERSION
+--// ═══════════════════════════════════════════════════════════════════════════
+
+CreateFeatureCard(
+    "LEVIATHAN TORNADO VORTEX",
+    "Tornado air yang menghancurkan semua prop di sekitar. Menggunakan manipulasi partikel dan physics Brookhaven.",
+    function(active)
+        if active then
+            local tornadoActive = true
+            
+            --// TORNADO CORE MODEL
+            local Tornado = Instance.new("Model")
+            Tornado.Name = "GratacaTornado"
+            
+            --// VORTEX PARTS ARRAY
+            local vortexParts = {}
+            
+            --// CREATE 50 VORTEX SEGMENTS
+            for i = 1, 50 do
+                local VortexPart = Instance.new("Part")
+                VortexPart.Name = "Vortex_" .. i
+                VortexPart.Size = Vector3.new(2, 0.5, 2)
+                VortexPart.Color = Color3.fromRGB(0, 100 + (i * 2), 200 + i) -- Gradient blue
+                VortexPart.Material = Enum.Material.Neon
+                VortexPart.Transparency = 0.6
+                VortexPart.CanCollide = false
+                VortexPart.Anchored = false -- Physics enabled for chaos
+                VortexPart.Parent = Tornado
+                
+                --// ADD TRAIL EFFECT
+                local Trail = Instance.new("Trail")
+                Trail.Color = ColorSequence.new(Color3.fromRGB(0, 255, 255), Color3.fromRGB(0, 100, 200))
+                Trail.WidthScale = NumberSequence.new(0.5, 0)
+                Trail.Lifetime = 0.5
+                Trail.Parent = VortexPart
+                
+                --// ADD POINT LIGHT (Bioluminescent)
+                local BioLight = Instance.new("PointLight")
+                BioLight.Color = Color3.fromRGB(0, 200, 255)
+                BioLight.Brightness = 2
+                BioLight.Range = 10
+                BioLight.Parent = VortexPart
+                
+                table.insert(vortexParts, VortexPart)
+            end
+            
+            --// EYE OF THE STORM (CENTER)
+            local Eye = Instance.new("Part")
+            Eye.Name = "Eye"
+            Eye.Size = Vector3.new(8, 0.5, 8)
+            Eye.Shape = Enum.PartType.Cylinder
+            Eye.Color = Color3.fromRGB(0, 255, 255)
+            Eye.Material = Enum.Material.Neon
+            Eye.Transparency = 0.3
+            Eye.CanCollide = false
+            Eye.Parent = Tornado
+            
+            --// EYE GLOW
+            local EyeGlow = Instance.new("PointLight")
+            EyeGlow.Color = Color3.fromRGB(0, 255, 255)
+            EyeGlow.Brightness = 20
+            EyeGlow.Range = 50
+            EyeGlow.Parent = Eye
+            
+            --// EYE PARTICLE (Absorbing effect)
+            local EyeParticle = Instance.new("ParticleEmitter")
+            EyeParticle.Color = ColorSequence.new(Color3.fromRGB(0, 255, 255))
+            EyeParticle.Size = NumberSequence.new(3, 0)
+            EyeParticle.Lifetime = NumberRange.new(1, 2)
+            EyeParticle.Rate = 100
+            EyeParticle.Speed = NumberRange.new(-20, -50) -- Negative = sucking in
+            EyeParticle.Acceleration = Vector3.new(0, 0, 0)
+            EyeParticle.Parent = Eye
+            
+            --// DEBRIS FIELD (Flying rocks/props)
+            local debrisParts = {}
+            for i = 1, 20 do
+                local Debris = Instance.new("Part")
+                Debris.Name = "Debris_" .. i
+                Debris.Size = Vector3.new(math.random(1, 3), math.random(1, 3), math.random(1, 3))
+                Debris.Color = Color3.fromRGB(80, 80, 80)
+                Debris.Material = Enum.Material.Concrete
+                Debris.CanCollide = false
+                Debris.Parent = Tornado
+                table.insert(debrisParts, Debris)
+            end
+            
+            --// TORNADO PARENT TO WORKSPACE
+            Tornado.Parent = Workspace
+            
+            --// TORNADO PHYSICS & ANIMATION SYSTEM
+            local tornadoConnection
+            local time = 0
+            local radius = 30
+            local height = 40
+            
+            tornadoConnection = RunService.Heartbeat:Connect(function(dt)
+                if not tornadoActive then return end
+                time = time + dt
+                
+                local center = HumanoidRootPart.Position
+                
+                --// ANIMATE VORTEX SPIRAL
+                for i, part in ipairs(vortexParts) do
+                    local progress = i / #vortexParts
+                    local angle = progress * math.pi * 8 + time * 3 -- 8 full rotations
+                    local currentHeight = progress * height
+                    local currentRadius = radius * (1 - progress * 0.5) -- Taper at top
+                    
+                    local x = math.cos(angle) * currentRadius
+                    local z = math.sin(angle) * currentRadius
+                    local y = currentHeight - (height / 2)
+                    
+                    --// CALCULATE TARGET POSITION
+                    local targetPos = Vector3.new(
+                        center.X + x,
+                        center.Y + y,
+                        center.Z + z
+                    )
+                    
+                    --// SMOOTH LERP TO POSITION
+                    part.Position = part.Position:Lerp(targetPos, 0.3)
+                    part.CFrame = CFrame.new(part.Position) * CFrame.Angles(0, angle, time * 2)
+                    
+                    --// SPIN VELOCITY
+                    part.RotVelocity = Vector3.new(0, 100, 0)
+                end
+                
+                --// EYE POSITION (Bottom center)
+                Eye.CFrame = CFrame.new(center.X, center.Y - 5, center.Z)
+                
+                --// ANIMATE DEBRIS ORBITING
+                for i, debris in ipairs(debrisParts) do
+                    local debrisAngle = time * 2 + (i / #debrisParts) * math.pi * 2
+                    local debrisRadius = 15 + math.sin(time + i) * 10
+                    local debrisHeight = math.sin(time * 3 + i) * 20
+                    
+                    debris.Position = Vector3.new(
+                        center.X + math.cos(debrisAngle) * debrisRadius,
+                        center.Y + debrisHeight,
+                        center.Z + math.sin(debrisAngle) * debrisRadius
+                    )
+                    debris.Rotation = Vector3.new(
+                        math.random(-360, 360),
+                        math.random(-360, 360),
+                        math.random(-360, 360)
+                    )
+                end
+                
+                --// PULL NEARBY OBJECTS (ATTRACTION FORCE)
+                for _, obj in ipairs(Workspace:GetDescendants()) do
+                    if obj:IsA("BasePart") and obj ~= HumanoidRootPart and obj.Parent ~= Tornado then
+                        local dist = (obj.Position - center).Magnitude
+                        
+                        --// ATTRACTION ZONE
+                        if dist < radius * 2.5 and dist > 5 then
+                            local pullDir = (center - obj.Position).Unit
+                            local pullStrength = (1 - dist / (radius * 2.5)) * 100 -- Stronger when closer
+                            
+                            --// APPLY VELOCITY
+                            obj.Velocity = obj.Velocity + pullDir * pullStrength * dt
+                            obj.RotVelocity = obj.RotVelocity + Vector3.new(
+                                math.random(-50, 50),
+                                math.random(-50, 50),
+                                math.random(-50, 50)
+                            )
+                            
+                            --// UNANCHOR PROPS (if anchored)
+                            if obj.Anchored then
+                                obj.Anchored = false
+                            end
+                        end
+                        
+                        --// DESTRUCTION ZONE (Close to center)
+                        if dist < 8 then
+                            --// Fling object upward
+                            obj.Velocity = Vector3.new(
+                                math.random(-100, 100),
+                                200,
+                                math.random(-100, 100)
+                            )
+                            
+                            --// Color change to show damage
+                            obj.Color = Color3.fromRGB(255, 0, 0)
+                            
+                            --// Optional: Break weld constraints
+                            for _, constraint in ipairs(obj:GetChildren()) do
+                                if constraint:IsA("Weld") or constraint:IsA("WeldConstraint") then
+                                    constraint:Destroy()
+                                end
+                            end
+                        end
+                    end
+                end
+                
+                --// PLAYER EFFECTS (If inside tornado)
+                local playerDist = (HumanoidRootPart.Position - center).Magnitude
+                if playerDist < radius then
+                    --// Screen shake
+                    Camera.CFrame = Camera.CFrame * CFrame.new(
+                        math.sin(time * 20) * 0.5,
+                        math.cos(time * 20) * 0.5,
+                        0
+                    )
+                    
+                    --// Wind sound effect (visual text)
+                    --// Note: Actual sound requires asset ID
+                end
+                
+                --// LIGHTNING EFFECT (Random)
+                if math.random(1, 100) == 1 then
+                    local Lightning = Instance.new("Part")
+                    Lightning.Size = Vector3.new(0.5, math.random(20, 50), 0.5)
+                    Lightning.Color = Color3.fromRGB(255, 255, 255)
+                    Lightning.Material = Enum.Material.Neon
+                    Lightning.Position = center + Vector3.new(
+                        math.random(-radius, radius),
+                        math.random(0, height),
+                        math.random(-radius, radius)
+                    )
+                    Lightning.Parent = Workspace
+                    
+                    game.Debris:AddItem(Lightning, 0.1)
+                end
+            end)
+            
+            --// STORE FOR CLEANUP
+            _G.GratacaTornado = {
+                Model = Tornado,
+                Connection = tornadoConnection,
+                Parts = vortexParts,
+                Debris = debrisParts
+            }
+            
+            --// NOTIFICATION
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "GRATACAAI",
+                Text = "LEVIATHAN TORNADO aktif! Semua prop ditarik ke pusat vortex! 👿",
+                Duration = 5
+            })
+            
+        else
+            --// DEACTIVATE & CLEANUP
+            if _G.GratacaTornado then
+                _G.GratacaTornado.Connection:Disconnect()
+                
+                --// DESTROY ALL PARTS
+                for _, part in ipairs(_G.GratacaTornado.Parts) do
+                    if part then part:Destroy() end
+                end
+                for _, debris in ipairs(_G.GratacaTornado.Debris) do
+                    if debris then debris:Destroy() end
+                end
+                
+                _G.GratacaTornado.Model:Destroy()
+                _G.GratacaTornado = nil
+            end
+            
+            game.StarterGui:SetCore("SendNotification", {
+                Title = "GRATACAAI",
+                Text = "Tornado dimatikan. Area aman kembali. 🗿",
+                Duration = 3
+            })
+        end
+    end
+)
