@@ -1,8 +1,7 @@
 --[[
     ╔══════════════════════════════════════════════════════════════════════════════╗
-    ║  GRATACAAI ULTIMATE BROOKHAVEN GUI v3.0.3.0.WPPIDXM — MULTI-BLOCK MESH      ║
+    ║  GRATACAAI ULTIMATE BROOKHAVEN GUI v3.0.3.1.WPPIDXM — SHAPED MESH FIX      ║
     ║  Creator: Yang Mulia KAREEMXD | GratacaAI                                    ║
-    ║  Features: B2-Spirit | Leviathan | Tornado | Blood Wings | Dragon | Home     ║
     ╚══════════════════════════════════════════════════════════════════════════════╝
 ]]
 
@@ -23,7 +22,7 @@ local Camera = Workspace.CurrentCamera
 
 --// GRATACAAI UI CONFIG
 local GRATACA_CONFIG = {
-    Title = "GRATACAAI v3.0.3.0.WPPIDXM",
+    Title = "GRATACAAI v3.0.3.1.WPPIDXM",
     Subtitle = "Yang Mulia KAREEMXD",
     Width = 380,
     Height = 500,
@@ -59,7 +58,9 @@ MainFrame.Position = UDim2.new(0.5, -GRATACA_CONFIG.Width/2, 0.5, -GRATACA_CONFI
 MainFrame.BackgroundColor3 = GRATACA_CONFIG.PrimaryColor
 MainFrame.BorderSizePixel = 0
 MainFrame.ClipsDescendants = true
-MainFrame.Parent = ScreenGui
+MainFrame.Parent = = ScreenGui
+
+local MainCorner = ScreenGui
 
 local MainCorner = Instance.new("UICorner")
 MainCorner.CornerRadius = GRATACA_CONFIG.CornerRadius
@@ -398,7 +399,7 @@ local function CreateFeatureCard(title, description, callback)
 end
 
 --// ═══════════════════════════════════════════════════════════════════════════
---// FEATURE 1: B2-SPIRIT STEALTH BOMBER — 40 BLOCKS
+--// FEATURE 1: B2-SPIRIT — SHAPED MESH (40 BLOCKS)
 --// ═══════════════════════════════════════════════════════════════════════════
 CreateFeatureCard(
     "B2-SPIRIT STEALTH FLIGHT",
@@ -411,57 +412,57 @@ CreateFeatureCard(
             local B2Model = Instance.new("Model")
             B2Model.Name = "GratacaB2Spirit"
             
-            --// FUSELAGE — 12 blocks
-            local fuselageParts = {}
+            --// FUSELAGE — 12 blocks (center body)
+            local fuselage = {}
             for i = 1, 12 do
                 local part = Instance.new("Part")
-                part.Size = Vector3.new(1.2, 0.8, 1.5)
-                part.Color = i % 2 == 0 and Color3.fromRGB(30, 30, 30) or Color3.fromRGB(20, 20, 20)
+                part.Size = Vector3.new(1.5, 1, 2)
+                part.Color = Color3.fromRGB(30, 30, 30)
                 part.Material = Enum.Material.SmoothPlastic
-                part.Transparency = 0.15
+                part.Transparency = 0.1
                 part.CanCollide = false
                 part.Parent = B2Model
-                table.insert(fuselageParts, {part = part, index = i})
+                table.insert(fuselage, part)
             end
             
-            --// LEFT WING — 14 blocks
-            local leftWingParts = {}
+            --// LEFT WING — 14 blocks (swept back shape)
+            local leftWing = {}
             for row = 1, 7 do
                 for col = 1, 2 do
                     local part = Instance.new("Part")
-                    part.Size = Vector3.new(1.5, 0.2, 1)
+                    part.Size = Vector3.new(1.8, 0.2, 1.2)
                     part.Color = Color3.fromRGB(25, 25, 25)
                     part.Material = Enum.Material.SmoothPlastic
-                    part.Transparency = 0.2
+                    part.Transparency = 0.15
                     part.CanCollide = false
                     part.Parent = B2Model
-                    table.insert(leftWingParts, {part = part, row = row, col = col})
+                    table.insert(leftWing, {part = part, row = row, col = col})
                 end
             end
             
             --// RIGHT WING — 14 blocks
-            local rightWingParts = {}
+            local rightWing = {}
             for row = 1, 7 do
                 for col = 1, 2 do
                     local part = Instance.new("Part")
-                    part.Size = Vector3.new(1.5, 0.2, 1)
+                    part.Size = Vector3.new(1.8, 0.2, 1.2)
                     part.Color = Color3.fromRGB(25, 25, 25)
                     part.Material = Enum.Material.SmoothPlastic
-                    part.Transparency = 0.2
+                    part.Transparency = 0.15
                     part.CanCollide = false
                     part.Parent = B2Model
-                    table.insert(rightWingParts, {part = part, row = row, col = col})
+                    table.insert(rightWing, {part = part, row = row, col = col})
                 end
             end
             
-            --// ENGINE GLOW
+            --// ENGINE
             local EngineGlow = Instance.new("PointLight")
             EngineGlow.Color = Color3.fromRGB(255, 80, 0)
-            EngineGlow.Brightness = 6
-            EngineGlow.Range = 15
-            EngineGlow.Parent = fuselageParts[1].part
+            EngineGlow.Brightness = 8
+            EngineGlow.Range = 20
+            EngineGlow.Parent = fuselage[1]
             
-            B2Model.PrimaryPart = fuselageParts[6].part
+            B2Model.PrimaryPart = fuselage[6]
             B2Model.Parent = Workspace
             
             local flyConnection
@@ -484,29 +485,33 @@ CreateFeatureCard(
                     HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
                 end
                 
-                local basePos = HumanoidRootPart.Position + Vector3.new(0, 2.5, 0)
+                local basePos = HumanoidRootPart.Position + Vector3.new(0, 3, 0)
                 local yaw = math.atan2(Camera.CFrame.LookVector.X, Camera.CFrame.LookVector.Z)
+                local cf = CFrame.new(basePos) * CFrame.Angles(0, yaw, 0)
                 
-                --// FUSELAGE
-                for _, data in ipairs(fuselageParts) do
-                    local i = data.index
-                    data.part.CFrame = CFrame.new(basePos + Vector3.new(0, 0, -i * 0.8)) * CFrame.Angles(0, yaw, 0)
+                --// FUSELAGE — line shape
+                for i, part in ipairs(fuselage) do
+                    part.CFrame = cf * CFrame.new(0, 0, (i - 6) * 1.5)
                 end
                 
-                --// LEFT WING
-                for _, data in ipairs(leftWingParts) do
+                --// LEFT WING — swept back triangle
+                for _, data in ipairs(leftWing) do
                     local row = data.row
                     local col = data.col
-                    local offset = Vector3.new(-2 - col * 1.2, 0, -row * 0.9)
-                    data.part.CFrame = CFrame.new(basePos + (CFrame.Angles(0, yaw, 0) * offset)) * CFrame.Angles(0, yaw, math.rad(-5))
+                    local x = -3 - col * 2
+                    local z = -row * 1.5
+                    local y = math.abs(row) * 0.1
+                    data.part.CFrame = cf * CFrame.new(x, y, z)
                 end
                 
-                --// RIGHT WING
-                for _, data in ipairs(rightWingParts) do
+                --// RIGHT WING — mirror
+                for _, data in ipairs(rightWing) do
                     local row = data.row
                     local col = data.col
-                    local offset = Vector3.new(2 + col * 1.2, 0, -row * 0.9)
-                    data.part.CFrame = CFrame.new(basePos + (CFrame.Angles(0, yaw, 0) * offset)) * CFrame.Angles(0, yaw, math.rad(5))
+                    local x = 3 + col * 2
+                    local z = -row * 1.5
+                    local y = math.abs(row) * 0.1
+                    data.part.CFrame = cf * CFrame.new(x, y, z)
                 end
             end)
             
@@ -532,7 +537,7 @@ CreateFeatureCard(
 )
 
 --// ═══════════════════════════════════════════════════════════════════════════
---// FEATURE 2: LEVIATHAN — 30 BLOCKS SERPENTINE
+--// FEATURE 2: LEVIATHAN — SHAPED SERPENT (30 BLOCKS)
 --// ═══════════════════════════════════════════════════════════════════════════
 CreateFeatureCard(
     "LEVIATHAN AQUATIC DOMINATOR",
@@ -544,50 +549,48 @@ CreateFeatureCard(
             local Leviathan = Instance.new("Model")
             Leviathan.Name = "GratacaLeviathan"
             
-            --// BODY SEGMENTS — 24 blocks
-            local bodyParts = {}
+            --// BODY — 24 blocks (tapered serpent)
+            local body = {}
             for i = 1, 24 do
                 local part = Instance.new("Part")
-                part.Name = "Body_" .. i
-                local size = 2.5 - (i * 0.08)
-                part.Size = Vector3.new(size, size * 0.7, size * 1.2)
-                part.Color = i % 3 == 0 and Color3.fromRGB(0, 200, 180) or Color3.fromRGB(10, 40, 70)
+                local size = 3 - (i * 0.1)
+                part.Size = Vector3.new(size, size * 0.7, size * 1.3)
+                part.Color = i % 3 == 0 and Color3.fromRGB(0, 220, 200) or Color3.fromRGB(10, 40, 80)
                 part.Material = Enum.Material.Neon
-                part.Transparency = 0.3
+                part.Transparency = 0.25
                 part.CanCollide = false
                 part.Parent = Leviathan
                 
-                local BioLight = Instance.new("PointLight")
-                BioLight.Color = Color3.fromRGB(0, 255, 200)
-                BioLight.Brightness = 1.5
-                BioLight.Range = 5
-                BioLight.Parent = part
+                local glow = Instance.new("PointLight")
+                glow.Color = Color3.fromRGB(0, 255, 200)
+                glow.Brightness = 2
+                glow.Range = 6
+                glow.Parent = part
                 
-                table.insert(bodyParts, part)
+                table.insert(body, part)
             end
             
-            --// HEAD — 6 blocks
-            local headParts = {}
+            --// HEAD — 6 blocks (skull shape)
+            local head = {}
             for i = 1, 6 do
                 local part = Instance.new("Part")
-                part.Name = "Head_" .. i
-                part.Size = Vector3.new(1.5 + i * 0.2, 1.2 + i * 0.15, 1.8)
-                part.Color = Color3.fromRGB(5, 25, 50)
+                part.Size = Vector3.new(2 + i * 0.3, 1.8 + i * 0.2, 2.5 + i * 0.3)
+                part.Color = Color3.fromRGB(5, 30, 60)
                 part.Material = Enum.Material.Neon
-                part.Transparency = 0.2
+                part.Transparency = 0.15
                 part.CanCollide = false
                 part.Parent = Leviathan
-                table.insert(headParts, part)
+                table.insert(head, part)
             end
             
             --// EYES
             local EyeLeft = Instance.new("PointLight")
             EyeLeft.Color = Color3.fromRGB(255, 0, 0)
-            EyeLeft.Brightness = 10
-            EyeLeft.Range = 18
-            EyeLeft.Parent = headParts[6]
+            EyeLeft.Brightness = 15
+            EyeLeft.Range = 25
+            EyeLeft.Parent = head[6]
             
-            Leviathan.PrimaryPart = headParts[3]
+            Leviathan.PrimaryPart = head[3]
             Leviathan.Parent = Workspace
             
             local leviathanConnection
@@ -599,18 +602,18 @@ CreateFeatureCard(
                 
                 local targetPos = HumanoidRootPart.Position
                 
-                --// HEAD
-                for i, part in ipairs(headParts) do
-                    local offset = Vector3.new(0, -7, i * 0.8)
-                    part.CFrame = CFrame.new(targetPos + offset) * CFrame.Angles(0, time * 0.8, 0)
+                --// HEAD — leading the serpent
+                for i, part in ipairs(head) do
+                    local offset = Vector3.new(0, -6, i * 1.2)
+                    part.CFrame = CFrame.new(targetPos + offset) * CFrame.Angles(0, time * 0.6, 0)
                 end
                 
-                --// BODY — serpentine wave
-                for i, part in ipairs(bodyParts) do
-                    local waveX = math.sin(time * 2 + i * 0.4) * 4
-                    local waveZ = math.cos(time * 2 + i * 0.4) * 4
-                    local offset = Vector3.new(waveX, -9 - i * 0.9, waveZ)
-                    part.CFrame = CFrame.new(targetPos + offset) * CFrame.Angles(0, time * 0.8 + i * 0.2, 0)
+                --// BODY — sine wave following head
+                for i, part in ipairs(body) do
+                    local waveX = math.sin(time * 1.8 + i * 0.35) * 5
+                    local waveZ = math.cos(time * 1.8 + i * 0.35) * 5
+                    local y = -8 - i * 1.2
+                    part.CFrame = CFrame.new(targetPos.X + waveX, targetPos.Y + y, targetPos.Z + waveZ) * CFrame.Angles(0, time * 0.6 + i * 0.15, 0)
                 end
                 
                 if Humanoid then
@@ -641,7 +644,7 @@ CreateFeatureCard(
 )
 
 --// ═══════════════════════════════════════════════════════════════════════════
---// FEATURE 3: TORNADO — 40 BLOCKS VORTEX
+--// FEATURE 3: TORNADO — SHAPED VORTEX (40 BLOCKS)
 --// ═══════════════════════════════════════════════════════════════════════════
 CreateFeatureCard(
     "LEVIATHAN TORNADO VORTEX",
@@ -653,31 +656,29 @@ CreateFeatureCard(
             local Tornado = Instance.new("Model")
             Tornado.Name = "GratacaTornado"
             
-            --// VORTEX — 40 blocks spiral
-            local vortexParts = {}
+            --// VORTEX — 40 blocks spiral funnel
+            local vortex = {}
             for i = 1, 40 do
                 local part = Instance.new("Part")
-                part.Name = "Vortex_" .. i
-                part.Size = Vector3.new(1.2, 1.2, 1.2)
-                part.Color = Color3.fromHSV(0.55 + (i/40) * 0.15, 0.8, 0.9)
+                part.Size = Vector3.new(1.5, 1.5, 1.5)
+                part.Color = Color3.fromHSV(0.55 + (i/40) * 0.15, 0.9, 1)
                 part.Material = Enum.Material.Neon
-                part.Transparency = 0.4
+                part.Transparency = 0.35
                 part.CanCollide = false
                 part.Parent = Tornado
                 
-                local Trail = Instance.new("Trail")
-                Trail.Color = ColorSequence.new(part.Color, Color3.fromRGB(0, 100, 200))
-                Trail.WidthScale = NumberSequence.new(0.4, 0)
-                Trail.Lifetime = 0.25
-                Trail.Parent = part
+                local trail = Instance.new("Trail")
+                trail.Color = ColorSequence.new(part.Color, Color3.fromRGB(0, 100, 200))
+                trail.WidthScale = NumberSequence.new(0.5, 0)
+                trail.Lifetime = 0.3
+                trail.Parent = part
                 
-                table.insert(vortexParts, part)
+                table.insert(vortex, part)
             end
             
             --// EYE
             local Eye = Instance.new("Part")
-            Eye.Name = "Eye"
-            Eye.Size = Vector3.new(5, 0.3, 5)
+            Eye.Size = Vector3.new(6, 0.3, 6)
             Eye.Shape = Enum.PartType.Cylinder
             Eye.Color = Color3.fromRGB(0, 255, 255)
             Eye.Material = Enum.Material.Neon
@@ -687,16 +688,16 @@ CreateFeatureCard(
             
             local EyeGlow = Instance.new("PointLight")
             EyeGlow.Color = Color3.fromRGB(0, 255, 255)
-            EyeGlow.Brightness = 15
-            EyeGlow.Range = 35
+            EyeGlow.Brightness = 20
+            EyeGlow.Range = 40
             EyeGlow.Parent = Eye
             
             Tornado.Parent = Workspace
             
             local tornadoConnection
             local time = 0
-            local radius = 22
-            local height = 28
+            local radius = 20
+            local height = 25
             
             tornadoConnection = RunService.Heartbeat:Connect(function(dt)
                 if not tornadoActive then return end
@@ -704,53 +705,53 @@ CreateFeatureCard(
                 
                 local center = HumanoidRootPart.Position
                 
-                --// VORTEX SPIRAL
-                for i, part in ipairs(vortexParts) do
-                    local progress = i / #vortexParts
-                    local angle = progress * math.pi * 10 + time * 3
+                --// VORTEX — funnel shape (wide bottom, narrow top)
+                for i, part in ipairs(vortex) do
+                    local progress = i / #vortex
+                    local angle = progress * math.pi * 12 + time * 4
                     local currentHeight = progress * height - height/2
-                    local currentRadius = radius * (1 - progress * 0.5)
+                    local currentRadius = radius * (1 - progress * 0.6) -- funnel: wide bottom, narrow top
                     
                     local x = math.cos(angle) * currentRadius
                     local z = math.sin(angle) * currentRadius
                     
-                    part.CFrame = CFrame.new(center.X + x, center.Y + currentHeight, center.Z + z) * CFrame.Angles(time * 2, time * 3, time)
+                    part.CFrame = CFrame.new(center.X + x, center.Y + currentHeight, center.Z + z) * CFrame.Angles(time * 3, time * 2, time * 4)
                 end
                 
-                Eye.CFrame = CFrame.new(center.X, center.Y - 3, center.Z)
+                Eye.CFrame = CFrame.new(center.X, center.Y - 2, center.Z)
                 
-                --// PULL OBJECTS
+                --// PULL
                 for _, obj in ipairs(Workspace:GetDescendants()) do
                     if obj:IsA("BasePart") and obj ~= HumanoidRootPart and obj.Parent ~= Tornado then
                         local dist = (obj.Position - center).Magnitude
                         
                         if dist < radius * 2 and dist > 3 then
                             local pullDir = (center - obj.Position).Unit
-                            local pullStrength = (1 - dist / (radius * 2)) * 70
+                            local pullStrength = (1 - dist / (radius * 2)) * 80
                             obj.Velocity = obj.Velocity + pullDir * pullStrength * dt
                             if obj.Anchored then obj.Anchored = false end
                         end
                         
                         if dist < 5 then
-                            obj.Velocity = Vector3.new(math.random(-60, 60), 120, math.random(-60, 60))
+                            obj.Velocity = Vector3.new(math.random(-80, 80), 150, math.random(-80, 80))
                             obj.Color = Color3.fromRGB(255, 0, 0)
                         end
                     end
                 end
                 
                 --// LIGHTNING
-                if math.random(1, 60) == 1 then
-                    local Lightning = Instance.new("Part")
-                    Lightning.Size = Vector3.new(0.3, math.random(12, 35), 0.3)
-                    Lightning.Color = Color3.fromRGB(255, 255, 255)
-                    Lightning.Material = Enum.Material.Neon
-                    Lightning.Position = center + Vector3.new(math.random(-radius, radius), math.random(0, height), math.random(-radius, radius))
-                    Lightning.Parent = Workspace
-                    game.Debris:AddItem(Lightning, 0.06)
+                if math.random(1, 50) == 1 then
+                    local bolt = Instance.new("Part")
+                    bolt.Size = Vector3.new(0.4, math.random(15, 40), 0.4)
+                    bolt.Color = Color3.fromRGB(255, 255, 255)
+                    bolt.Material = Enum.Material.Neon
+                    bolt.Position = center + Vector3.new(math.random(-radius, radius), math.random(0, height), math.random(-radius, radius))
+                    bolt.Parent = Workspace
+                    game.Debris:AddItem(bolt, 0.05)
                 end
             end)
             
-            _G.GratacaTornado = {Model = Tornado, Connection = tornadoConnection, Parts = vortexParts}
+            _G.GratacaTornado = {Model = Tornado, Connection = tornadoConnection, Parts = vortex}
             
             pcall(function()
                 game.StarterGui:SetCore("SendNotification", {
@@ -771,7 +772,7 @@ CreateFeatureCard(
 )
 
 --// ═══════════════════════════════════════════════════════════════════════════
---// FEATURE 4: BLOOD WINGS — 50 BLOCKS FAN SHAPE
+--// FEATURE 4: BLOOD WINGS — SHAPED FAN (50 BLOCKS)
 --// ═══════════════════════════════════════════════════════════════════════════
 CreateFeatureCard(
     "BLOOD WINGS ANIMATED",
@@ -785,59 +786,56 @@ CreateFeatureCard(
             
             local wingColor = Color3.fromRGB(139, 0, 0)
             local featherColor = Color3.fromRGB(220, 20, 60)
-            local darkColor = Color3.fromRGB(100, 0, 0)
+            local darkColor = Color3.fromRGB(80, 0, 0)
             
-            --// LEFT WING — 25 blocks (5x5 fan)
-            local leftWingParts = {}
+            --// LEFT WING — 25 blocks fan shape
+            local leftWing = {}
             for row = 1, 5 do
                 for col = 1, 5 do
                     local part = Instance.new("Part")
-                    part.Name = "LW_" .. row .. "_" .. col
-                    part.Size = Vector3.new(0.7, 0.12, 1)
+                    part.Size = Vector3.new(0.9, 0.15, 1.2)
                     part.Color = (row + col) % 2 == 0 and featherColor or wingColor
                     part.Material = Enum.Material.Neon
-                    part.Transparency = 0.15
+                    part.Transparency = 0.1
                     part.CanCollide = false
                     part.Parent = Wings
-                    table.insert(leftWingParts, {part = part, row = row, col = col})
+                    table.insert(leftWing, {part = part, row = row, col = col})
                 end
             end
             
-            --// RIGHT WING — 25 blocks
-            local rightWingParts = {}
+            --// RIGHT WING — 25 blocks mirror fan
+            local rightWing = {}
             for row = 1, 5 do
                 for col = 1, 5 do
                     local part = Instance.new("Part")
-                    part.Name = "RW_" .. row .. "_" .. col
-                    part.Size = Vector3.new(0.7, 0.12, 1)
+                    part.Size = Vector3.new(0.9, 0.15, 1.2)
                     part.Color = (row + col) % 2 == 0 and featherColor or wingColor
                     part.Material = Enum.Material.Neon
-                    part.Transparency = 0.15
+                    part.Transparency = 0.1
                     part.CanCollide = false
                     part.Parent = Wings
-                    table.insert(rightWingParts, {part = part, row = row, col = col})
+                    table.insert(rightWing, {part = part, row = row, col = col})
                 end
             end
             
             --// SPINE
             local Spine = Instance.new("Part")
-            Spine.Name = "Spine"
-            Spine.Size = Vector3.new(1.8, 0.25, 0.8)
+            Spine.Size = Vector3.new(2, 0.3, 1)
             Spine.Color = darkColor
             Spine.Material = Enum.Material.Neon
-            Spine.Transparency = 0.1
+            Spine.Transparency = 0.05
             Spine.CanCollide = false
             Spine.Parent = Wings
             
             --// PARTICLES
-            local BloodParticle = Instance.new("ParticleEmitter")
-            BloodParticle.Color = ColorSequence.new(Color3.fromRGB(139, 0, 0), Color3.fromRGB(80, 0, 0))
-            BloodParticle.Size = NumberSequence.new(0.25, 0)
-            BloodParticle.Lifetime = NumberRange.new(1, 2.5)
-            BloodParticle.Rate = 25
-            BloodParticle.Speed = NumberRange.new(1, 3)
-            BloodParticle.Acceleration = Vector3.new(0, -5, 0)
-            BloodParticle.Parent = Spine
+            local blood = Instance.new("ParticleEmitter")
+            blood.Color = ColorSequence.new(Color3.fromRGB(139, 0, 0), Color3.fromRGB(60, 0, 0))
+            blood.Size = NumberSequence.new(0.3, 0)
+            blood.Lifetime = NumberRange.new(1, 2.5)
+            blood.Rate = 30
+            blood.Speed = NumberRange.new(1, 3)
+            blood.Acceleration = Vector3.new(0, -5, 0)
+            blood.Parent = Spine
             
             Wings.Parent = Workspace
             
@@ -849,58 +847,48 @@ CreateFeatureCard(
                 time = time + dt
                 
                 local basePos = HumanoidRootPart.Position
-                local flapCycle = math.sin(time * 3)
-                local flapAngle = flapCycle * 40
+                local flap = math.sin(time * 3.5) * 45
                 
                 --// SPINE
-                Spine.CFrame = CFrame.new(basePos + Vector3.new(0, 1.2, -0.3))
+                Spine.CFrame = CFrame.new(basePos + Vector3.new(0, 1.5, -0.3))
                 
-                --// LEFT WING — FAN
-                for _, data in ipairs(leftWingParts) do
-                    local part = data.part
+                --// LEFT WING — fan arc shape
+                for _, data in ipairs(leftWing) do
                     local row = data.row
                     local col = data.col
                     
-                    local spreadX = -col * 1.1
-                    local spreadY = math.sin(col * 0.35) * 1.8 - row * 0.35
-                    local spreadZ = -row * 0.7
+                    -- Arc calculation
+                    local angle = math.rad(-20 - col * 15 + flap)
+                    local radius = 2 + row * 1.3
+                    local x = math.cos(angle) * radius
+                    local y = math.sin(angle) * radius * 0.3 + row * 0.2
+                    local z = -col * 0.6
                     
-                    local baseAngle = math.rad(-35 + flapAngle)
-                    local tipAngle = math.rad(-col * 7)
-                    
-                    local offset = Vector3.new(spreadX, spreadY, spreadZ)
-                    local rotated = CFrame.Angles(0, 0, baseAngle + tipAngle) * offset
-                    
-                    part.CFrame = CFrame.new(basePos + Vector3.new(0, 1.2, -0.3) + rotated) * CFrame.Angles(0, 0, baseAngle + tipAngle)
+                    data.part.CFrame = CFrame.new(basePos + Vector3.new(0, 1.5, -0.3) + Vector3.new(x, y, z)) * CFrame.Angles(0, 0, angle)
                 end
                 
-                --// RIGHT WING — MIRROR
-                for _, data in ipairs(rightWingParts) do
-                    local part = data.part
+                --// RIGHT WING — mirror arc
+                for _, data in ipairs(rightWing) do
                     local row = data.row
                     local col = data.col
                     
-                    local spreadX = col * 1.1
-                    local spreadY = math.sin(col * 0.35) * 1.8 - row * 0.35
-                    local spreadZ = -row * 0.7
+                    local angle = math.rad(20 + col * 15 - flap)
+                    local radius = 2 + row * 1.3
+                    local x = math.cos(angle) * radius
+                    local y = math.sin(angle) * radius * 0.3 + row * 0.2
+                    local z = -col * 0.6
                     
-                    local baseAngle = math.rad(35 - flapAngle)
-                    local tipAngle = math.rad(col * 7)
-                    
-                    local offset = Vector3.new(spreadX, spreadY, spreadZ)
-                    local rotated = CFrame.Angles(0, 0, baseAngle + tipAngle) * offset
-                    
-                    part.CFrame = CFrame.new(basePos + Vector3.new(0, 1.2, -0.3) + rotated) * CFrame.Angles(0, 0, baseAngle + tipAngle)
+                    data.part.CFrame = CFrame.new(basePos + Vector3.new(0, 1.5, -0.3) + Vector3.new(x, y, z)) * CFrame.Angles(0, 0, angle)
                 end
                 
                 --// GLIDE
                 if HumanoidRootPart.Velocity.Y < -3 then
-                    HumanoidRootPart.Velocity = HumanoidRootPart.Velocity + Vector3.new(0, 10, 0) * dt
+                    HumanoidRootPart.Velocity = HumanoidRootPart.Velocity + Vector3.new(0, 12, 0) * dt
                 end
                 
                 --// DASH
                 if UserInputService:IsKeyDown(Enum.KeyCode.Q) then
-                    HumanoidRootPart.Velocity = HumanoidRootPart.CFrame.LookVector * 120
+                    HumanoidRootPart.Velocity = HumanoidRootPart.CFrame.LookVector * 150
                 end
             end)
             
@@ -924,7 +912,7 @@ CreateFeatureCard(
 )
 
 --// ═══════════════════════════════════════════════════════════════════════════
---// FEATURE 5: ETERNUS DRAGON — 50 BLOCKS
+--// FEATURE 5: ETERNUS DRAGON — SHAPED (50 BLOCKS)
 --// ═══════════════════════════════════════════════════════════════════════════
 CreateFeatureCard(
     "ETERNUS DRAGON",
@@ -936,81 +924,77 @@ CreateFeatureCard(
             local Dragon = Instance.new("Model")
             Dragon.Name = "GratacaEternusDragon"
             
-            --// BODY — 30 blocks
-            local bodyParts = {}
-            for i = 1, 30 do
+            --// BODY — 28 blocks long serpentine
+            local body = {}
+            for i = 1, 28 do
                 local part = Instance.new("Part")
-                part.Name = "Body_" .. i
-                local size = 2.2 - (i * 0.06)
-                part.Size = Vector3.new(size, size * 0.8, size * 1.1)
-                part.Color = i % 3 == 0 and Color3.fromRGB(255, 80, 0) or Color3.fromRGB(25, 25, 25)
-                part.Material = Enum.Material.Metal
-                part.Transparency = 0.15
-                part.CanCollide = false
-                part.Parent = Dragon
-                
-                local Flame = Instance.new("PointLight")
-                Flame.Color = Color3.fromRGB(255, 100, 0)
-                Flame.Brightness = 3
-                Flame.Range = 6
-                Flame.Parent = part
-                
-                table.insert(bodyParts, part)
-            end
-            
-            --// HEAD — 8 blocks
-            local headParts = {}
-            for i = 1, 8 do
-                local part = Instance.new("Part")
-                part.Name = "Head_" .. i
-                part.Size = Vector3.new(1.8 + i * 0.25, 1.5 + i * 0.2, 2 + i * 0.3)
-                part.Color = Color3.fromRGB(15, 15, 15)
+                local size = 2.2 - (i * 0.05)
+                part.Size = Vector3.new(size, size * 0.9, size * 1.2)
+                part.Color = i % 4 == 0 and Color3.fromRGB(255, 100, 0) or Color3.fromRGB(30, 30, 30)
                 part.Material = Enum.Material.Metal
                 part.Transparency = 0.1
                 part.CanCollide = false
                 part.Parent = Dragon
-                table.insert(headParts, part)
+                
+                local flame = Instance.new("PointLight")
+                flame.Color = Color3.fromRGB(255, 80, 0)
+                flame.Brightness = 3
+                flame.Range = 5
+                flame.Parent = part
+                
+                table.insert(body, part)
             end
             
-            --// WINGS — 6 blocks each
-            local leftWingParts = {}
-            for row = 1, 3 do
+            --// HEAD — 8 blocks skull
+            local head = {}
+            for i = 1, 8 do
+                local part = Instance.new("Part")
+                part.Size = Vector3.new(1.5 + i * 0.3, 1.3 + i * 0.25, 1.8 + i * 0.35)
+                part.Color = Color3.fromRGB(15, 15, 15)
+                part.Material = Enum.Material.Metal
+                part.Transparency = 0.05
+                part.CanCollide = false
+                part.Parent = Dragon
+                table.insert(head, part)
+            end
+            
+            --// WINGS — 7 blocks each (bat wing shape)
+            local leftWing = {}
+            for row = 1, 4 do
                 for col = 1, 2 do
                     local part = Instance.new("Part")
-                    part.Name = "LWing_" .. row .. "_" .. col
-                    part.Size = Vector3.new(2.5, 0.3, 1.5)
+                    part.Size = Vector3.new(2.5, 0.25, 1.8)
                     part.Color = Color3.fromRGB(20, 20, 20)
                     part.Material = Enum.Material.Metal
-                    part.Transparency = 0.25
+                    part.Transparency = 0.2
                     part.CanCollide = false
                     part.Parent = Dragon
-                    table.insert(leftWingParts, {part = part, row = row, col = col})
+                    table.insert(leftWing, {part = part, row = row, col = col})
                 end
             end
             
-            local rightWingParts = {}
-            for row = 1, 3 do
+            local rightWing = {}
+            for row = 1, 4 do
                 for col = 1, 2 do
                     local part = Instance.new("Part")
-                    part.Name = "RWing_" .. row .. "_" .. col
-                    part.Size = Vector3.new(2.5, 0.3, 1.5)
+                    part.Size = Vector3.new(2.5, 0.25, 1.8)
                     part.Color = Color3.fromRGB(20, 20, 20)
                     part.Material = Enum.Material.Metal
-                    part.Transparency = 0.25
+                    part.Transparency = 0.2
                     part.CanCollide = false
                     part.Parent = Dragon
-                    table.insert(rightWingParts, {part = part, row = row, col = col})
+                    table.insert(rightWing, {part = part, row = row, col = col})
                 end
             end
             
             --// EYES
             local EyeLeft = Instance.new("PointLight")
             EyeLeft.Color = Color3.fromRGB(255, 50, 0)
-            EyeLeft.Brightness = 12
-            EyeLeft.Range = 22
-            EyeLeft.Parent = headParts[8]
+            EyeLeft.Brightness = 15
+            EyeLeft.Range = 25
+            EyeLeft.Parent = head[8]
             
-            Dragon.PrimaryPart = headParts[4]
+            Dragon.PrimaryPart = head[4]
             Dragon.Parent = Workspace
             
             local dragonConnection
@@ -1021,72 +1005,76 @@ CreateFeatureCard(
                 time = time + dt
                 
                 local playerPos = HumanoidRootPart.Position
-                local mountOffset = Vector3.new(0, 5, 0)
+                local mount = Vector3.new(0, 5, 0)
                 
                 --// HEAD
-                for i, part in ipairs(headParts) do
-                    local offset = Vector3.new(0, 0, i * 0.7)
-                    part.CFrame = CFrame.new(playerPos + mountOffset + offset) * CFrame.Angles(0, time * 0.4, 0)
+                for i, part in ipairs(head) do
+                    local offset = Vector3.new(0, 0, i * 0.9)
+                    part.CFrame = CFrame.new(playerPos + mount + offset) * CFrame.Angles(0, time * 0.5, 0)
                 end
                 
-                --// BODY
-                for i, part in ipairs(bodyParts) do
-                    local waveX = math.sin(time + i * 0.4) * 1.5
-                    local waveZ = math.cos(time + i * 0.4) * 1.5
-                    part.CFrame = CFrame.new(playerPos.X + waveX, playerPos.Y + mountOffset.Y - i * 0.7, playerPos.Z + waveZ - i * 0.8) * CFrame.Angles(0, time * 0.4 + i * 0.15, 0)
+                --// BODY — serpentine S-curve
+                for i, part in ipairs(body) do
+                    local waveX = math.sin(time * 1.5 + i * 0.3) * 2
+                    local waveZ = math.cos(time * 1.5 + i * 0.3) * 2
+                    part.CFrame = CFrame.new(playerPos.X + waveX, playerPos.Y + mount.Y - i * 0.8, playerPos.Z + waveZ - i * 0.9) * CFrame.Angles(0, time * 0.5 + i * 0.1, 0)
                 end
                 
-                --// WINGS
-                local wingFlap = math.sin(time * 2.5) * 30
-                for _, data in ipairs(leftWingParts) do
+                --// WINGS — bat shape flap
+                local wingFlap = math.sin(time * 2.5) * 35
+                for _, data in ipairs(leftWing) do
                     local row = data.row
                     local col = data.col
-                    local offset = Vector3.new(-3 - col * 2, 1 + row * 0.5, -row * 1.2)
-                    data.part.CFrame = CFrame.new(playerPos + mountOffset + offset) * CFrame.Angles(0, 0, math.rad(wingFlap))
+                    local x = -2.5 - col * 2.5
+                    local z = -row * 1.5
+                    local y = 1 + row * 0.4
+                    data.part.CFrame = CFrame.new(playerPos + mount + Vector3.new(x, y, z)) * CFrame.Angles(0, 0, math.rad(wingFlap - row * 5))
                 end
-                for _, data in ipairs(rightWingParts) do
+                for _, data in ipairs(rightWing) do
                     local row = data.row
                     local col = data.col
-                    local offset = Vector3.new(3 + col * 2, 1 + row * 0.5, -row * 1.2)
-                    data.part.CFrame = CFrame.new(playerPos + mountOffset + offset) * CFrame.Angles(0, 0, math.rad(-wingFlap))
+                    local x = 2.5 + col * 2.5
+                    local z = -row * 1.5
+                    local y = 1 + row * 0.4
+                    data.part.CFrame = CFrame.new(playerPos + mount + Vector3.new(x, y, z)) * CFrame.Angles(0, 0, math.rad(-wingFlap + row * 5))
                 end
                 
-                --// FIRE BREATH
+                --// FIRE
                 if UserInputService:IsKeyDown(Enum.KeyCode.E) then
-                    local fireDir = headParts[8].CFrame.LookVector
-                    local firePos = headParts[8].Position + fireDir * 3
+                    local fireDir = head[8].CFrame.LookVector
+                    local firePos = head[8].Position + fireDir * 3
                     
-                    local FireBall = Instance.new("Part")
-                    FireBall.Size = Vector3.new(2, 2, 2)
-                    FireBall.Shape = Enum.PartType.Ball
-                    FireBall.Color = Color3.fromRGB(255, 100, 0)
-                    FireBall.Material = Enum.Material.Neon
-                    FireBall.Position = firePos
-                    FireBall.Parent = Workspace
+                    local ball = Instance.new("Part")
+                    ball.Size = Vector3.new(2.5, 2.5, 2.5)
+                    ball.Shape = Enum.PartType.Ball
+                    ball.Color = Color3.fromRGB(255, 100, 0)
+                    ball.Material = Enum.Material.Neon
+                    ball.Position = firePos
+                    ball.Parent = Workspace
                     
-                    local BV = Instance.new("BodyVelocity")
-                    BV.Velocity = fireDir * 70
-                    BV.MaxForce = Vector3.new(99999, 99999, 99999)
-                    BV.Parent = FireBall
+                    local bv = Instance.new("BodyVelocity")
+                    bv.Velocity = fireDir * 80
+                    bv.MaxForce = Vector3.new(99999, 99999, 99999)
+                    bv.Parent = ball
                     
-                    FireBall.Touched:Connect(function()
+                    ball.Touched:Connect(function()
                         local ex = Instance.new("Explosion")
-                        ex.Position = FireBall.Position
-                        ex.BlastRadius = 10
-                        ex.BlastPressure = 350000
+                        ex.Position = ball.Position
+                        ex.BlastRadius = 12
+                        ex.BlastPressure = 400000
                         ex.Parent = Workspace
-                        FireBall:Destroy()
+                        ball:Destroy()
                     end)
                     
-                    game.Debris:AddItem(FireBall, 2)
+                    game.Debris:AddItem(ball, 2.5)
                 end
                 
                 --// ROAR
                 if UserInputService:IsKeyDown(Enum.KeyCode.R) then
-                    Camera.CFrame = Camera.CFrame * CFrame.new(math.random(-0.6, 0.6), math.random(-0.6, 0.6), math.random(-0.6, 0.6))
+                    Camera.CFrame = Camera.CFrame * CFrame.new(math.random(-0.7, 0.7), math.random(-0.7, 0.7), math.random(-0.7, 0.7))
                 end
                 
-                HumanoidRootPart.CFrame = CFrame.new(headParts[4].Position + Vector3.new(0, 1, 0))
+                HumanoidRootPart.CFrame = CFrame.new(head[4].Position + Vector3.new(0, 1.2, 0))
             end)
             
             _G.GratacaDragon = {Model = Dragon, Connection = dragonConnection}
@@ -1207,16 +1195,16 @@ TweenService:Create(Stroke, TweenInfo.new(0.6), {Transparency = 0.7}):Play()
 
 pcall(function()
     game.StarterGui:SetCore("SendNotification", {
-        Title = "GRATACAAI v3.0.3.0.WPPIDXM",
-        Text = "Yang Mulia KAREEMXD | Multi-Block Mesh",
+        Title = "GRATACAAI v3.0.3.1.WPPIDXM",
+        Text = "Yang Mulia KAREEMXD | Shaped Mesh Fix",
         Duration = 5
     })
 end)
 
 print([[
     ╔══════════════════════════════════════════════════════════════════════════════╗
-    ║  GRATACAAI ULTIMATE BROOKHAVEN GUI v3.0.3.0.WPPIDXM LOADED                 ║
-    ║  Multi-Block Mesh: B2=40 | Leviathan=30 | Tornado=40 | Wings=50 | Dragon=50 ║
-    ║  Drag: FIXED | Minimize: FIXED | Smooth: 100% | Lord: Yang Mulia KAREEMXD   ║
+    ║  GRATACAAI ULTIMATE BROOKHAVEN GUI v3.0.3.1.WPPIDXM LOADED                 ║
+    ║  Shaped Mesh: B2=40 | Leviathan=30 | Tornado=40 | Wings=50 | Dragon=50     ║
+    ║  All blocks form proper shapes | Lord: Yang Mulia KAREEMXD                  ║
     ╚══════════════════════════════════════════════════════════════════════════════╝
 ]])
