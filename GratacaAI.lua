@@ -1,11 +1,11 @@
 -- ╔══════════════════════════════════════════════════════════════════════════════╗
--- ║  GRATACAAI ABSOLUTE — UI V2: DRAG/CLOSE/MINIMIZE GUARANTEED                  ║
--- ║  Arsitektur: No Shadow Wrap | Pure Mouse Drag | Individual Input Listeners   ║
+-- ║  GRATACAAI ABSOLUTE — UI V3: PRIMITIVE MODE                                  ║
+-- ║  Zero styling | Zero tween | Zero UICorner | Pure TextButton + Frame        ║
+-- ║  Drag: Absolute position tracking | Close/Min: Direct MouseButton1Click      ║
 -- ╚══════════════════════════════════════════════════════════════════════════════╝
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
 local Workspace = game.Workspace
@@ -26,538 +26,370 @@ local function protectInstance(inst)
 end
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [UI V2 — GRATACA ABSOLUTE SKELETON]
+-- [UI V3 — PRIMITIVE SCREENGUI]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "GratacaUI_" .. tostring(math.random(100000,999999))
+ScreenGui.Name = "GratacaV3_" .. tostring(math.random(100000,999999))
 ScreenGui.ResetOnSpawn = false
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global  -- GLOBAL untuk fix layering
-ScreenGui.DisplayOrder = 999999
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 protectInstance(ScreenGui)
 
--- Main Container (NO SHADOW — langsung frame utama)
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "Main"
-MainFrame.Size = UDim2.new(0, 440, 0, 560)
-MainFrame.Position = UDim2.new(0.5, -220, 0.5, -280)
-MainFrame.BackgroundColor3 = Color3.fromRGB(14, 14, 20)
-MainFrame.BorderSizePixel = 0
-MainFrame.ClipsDescendants = true
-MainFrame.Active = true
-MainFrame.Draggable = false  -- Kita handle manual, lebih reliable
-MainFrame.Selectable = true
-MainFrame.ZIndex = 100
-MainFrame.Parent = ScreenGui
+-- Main Frame — NO UICorner, NO gradient, NO shadow
+local Main = Instance.new("Frame")
+Main.Name = "Main"
+Main.Size = UDim2.new(0, 400, 0, 500)
+Main.Position = UDim2.new(0.5, -200, 0.5, -250)
+Main.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+Main.BorderSizePixel = 2
+Main.BorderColor3 = Color3.fromRGB(180, 60, 60)
+Main.Active = true
+Main.ZIndex = 10
+Main.Parent = ScreenGui
 
-local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 12)
-MainCorner.Parent = MainFrame
-
--- Gradient Background
-local UIGradient = Instance.new("UIGradient")
-UIGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(22, 22, 32)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(10, 10, 16)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(28, 16, 16))
-})
-UIGradient.Rotation = 45
-UIGradient.Parent = MainFrame
-
--- ═══════════════════════════════════════════════════════════════════════════════
--- [TITLE BAR — DRAG HANDLE]
--- ═══════════════════════════════════════════════════════════════════════════════
-
+-- Title Bar — Frame biasa, bisa di-drag
 local TitleBar = Instance.new("Frame")
 TitleBar.Name = "TitleBar"
-TitleBar.Size = UDim2.new(1, 0, 0, 44)
-TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 42)
+TitleBar.Size = UDim2.new(1, 0, 0, 40)
+TitleBar.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
 TitleBar.BorderSizePixel = 0
-TitleBar.ZIndex = 200
-TitleBar.Parent = MainFrame
-
-local TitleCorner = Instance.new("UICorner")
-TitleCorner.CornerRadius = UDim.new(0, 12)
-TitleCorner.Parent = TitleBar
+TitleBar.ZIndex = 11
+TitleBar.Parent = Main
 
 -- Title Text
 local TitleText = Instance.new("TextLabel")
-TitleText.Size = UDim2.new(1, -150, 1, 0)
-TitleText.Position = UDim2.new(0, 16, 0, 0)
+TitleText.Size = UDim2.new(1, -100, 1, 0)
+TitleText.Position = UDim2.new(0, 10, 0, 0)
 TitleText.BackgroundTransparency = 1
-TitleText.Text = "GRATACAAI ABSOLUTE"
-TitleText.TextColor3 = Color3.fromRGB(220, 50, 50)
+TitleText.Text = "GRATACAAI V3"
+TitleText.TextColor3 = Color3.fromRGB(220, 60, 60)
 TitleText.TextSize = 16
-TitleText.Font = Enum.Font.GothamBold
+TitleText.Font = Enum.Font.SourceSansBold
 TitleText.TextXAlignment = Enum.TextXAlignment.Left
-TitleText.ZIndex = 201
+TitleText.ZIndex = 12
 TitleText.Parent = TitleBar
 
+-- Subtitle
 local SubText = Instance.new("TextLabel")
-SubText.Size = UDim2.new(1, -150, 0, 14)
-SubText.Position = UDim2.new(0, 16, 0, 26)
+SubText.Size = UDim2.new(1, -100, 0, 14)
+SubText.Position = UDim2.new(0, 10, 0, 24)
 SubText.BackgroundTransparency = 1
-SubText.Text = "v3.0.2.0.WPPIDXM | LOYAL TO KAREEMXD"
-SubText.TextColor3 = Color3.fromRGB(130, 90, 70)
-SubText.TextSize = 9
-SubText.Font = Enum.Font.Gotham
+SubText.Text = "LOYAL TO KAREEMXD"
+SubText.TextColor3 = Color3.fromRGB(150, 100, 80)
+SubText.TextSize = 10
+SubText.Font = Enum.Font.SourceSans
 SubText.TextXAlignment = Enum.TextXAlignment.Left
-SubText.ZIndex = 201
+SubText.ZIndex = 12
 SubText.Parent = TitleBar
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [CONTROL BUTTONS — MINIMIZE & CLOSE]
+-- [CLOSE BUTTON — TEXTBUTTON MURNI]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- MINIMIZE BUTTON (TextButton murni — paling reliable)
-local MinimizeBtn = Instance.new("TextButton")
-MinimizeBtn.Name = "Minimize"
-MinimizeBtn.Size = UDim2.new(0, 34, 0, 34)
-MinimizeBtn.Position = UDim2.new(1, -78, 0, 5)
-MinimizeBtn.BackgroundColor3 = Color3.fromRGB(210, 170, 50)
-MinimizeBtn.Text = "−"
-MinimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-MinimizeBtn.TextSize = 20
-MinimizeBtn.Font = Enum.Font.GothamBold
-MinimizeBtn.AutoButtonColor = true
-MinimizeBtn.ZIndex = 250  -- MAX ZIndex
-MinimizeBtn.Parent = TitleBar
-
-local MinCorner = Instance.new("UICorner")
-MinCorner.CornerRadius = UDim.new(0, 8)
-MinCorner.Parent = MinimizeBtn
-
--- CLOSE BUTTON
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Name = "Close"
-CloseBtn.Size = UDim2.new(0, 34, 0, 34)
-CloseBtn.Position = UDim2.new(1, -40, 0, 5)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(210, 50, 50)
-CloseBtn.Text = "✕"
+CloseBtn.Size = UDim2.new(0, 60, 0, 30)
+CloseBtn.Position = UDim2.new(1, -65, 0, 5)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+CloseBtn.Text = "CLOSE"
 CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.TextSize = 15
-CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.AutoButtonColor = true
-CloseBtn.ZIndex = 250  -- MAX ZIndex
+CloseBtn.TextSize = 14
+CloseBtn.Font = Enum.Font.SourceSansBold
+CloseBtn.BorderSizePixel = 1
+CloseBtn.BorderColor3 = Color3.fromRGB(255, 100, 100)
+CloseBtn.ZIndex = 20
 CloseBtn.Parent = TitleBar
 
-local CloseCorner = Instance.new("UICorner")
-CloseCorner.CornerRadius = UDim.new(0, 8)
-CloseCorner.Parent = CloseBtn
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- [MINIMIZE BUTTON — TEXTBUTTON MURNI]
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+local MinBtn = Instance.new("TextButton")
+MinBtn.Name = "Minimize"
+MinBtn.Size = UDim2.new(0, 60, 0, 30)
+MinBtn.Position = UDim2.new(1, -130, 0, 5)
+MinBtn.BackgroundColor3 = Color3.fromRGB(180, 140, 40)
+MinBtn.Text = "MIN"
+MinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinBtn.TextSize = 14
+MinBtn.Font = Enum.Font.SourceSansBold
+MinBtn.BorderSizePixel = 1
+MinBtn.BorderColor3 = Color3.fromRGB(255, 200, 100)
+MinBtn.ZIndex = 20
+MinBtn.Parent = TitleBar
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [DRAG SYSTEM V2 — PURE MOUSE OBJECT]
+-- [CONTENT AREA — FRAME BIASA, NO SCROLLING]
+-- ═══════════════════════════════════════════════════════════════════════════════
+
+local Content = Instance.new("Frame")
+Content.Name = "Content"
+Content.Size = UDim2.new(1, -20, 1, -60)
+Content.Position = UDim2.new(0, 10, 0, 50)
+Content.BackgroundTransparency = 1
+Content.BorderSizePixel = 0
+Content.ZIndex = 10
+Content.Parent = Main
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- [DRAG SYSTEM V3 — ABSOLUTE MOUSE TRACKING]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local isDragging = false
-local dragOffset = nil
+local dragOffsetX = 0
+local dragOffsetY = 0
 
--- Kita pakai Mouse object karena paling reliable di semua executor
+-- Kita pakai Mouse.Button1Down + Mouse.Move + Mouse.Button1Up
+-- Ini paling primitif dan universal
+
 Mouse.Button1Down:Connect(function()
-    -- Cek apakah mouse di dalam TitleBar (bukan di button)
-    local mousePos = UserInputService:GetMouseLocation()
-    local titleAbs = TitleBar.AbsolutePosition
-    local titleSize = TitleBar.AbsoluteSize
-    local minAbs = MinimizeBtn.AbsolutePosition
-    local minSize = MinimizeBtn.AbsoluteSize
-    local closeAbs = CloseBtn.AbsolutePosition
-    local closeSize = CloseBtn.AbsoluteSize
+    local mouseX = Mouse.X
+    local mouseY = Mouse.Y
     
-    -- Check if inside TitleBar
+    local mainPos = Main.AbsolutePosition
+    local mainSize = Main.AbsoluteSize
+    
+    -- Cek apakah mouse di dalam TitleBar area
     local inTitleBar = (
-        mousePos.X >= titleAbs.X and 
-        mousePos.X <= titleAbs.X + titleSize.X and
-        mousePos.Y >= titleAbs.Y and 
-        mousePos.Y <= titleAbs.Y + titleSize.Y
+        mouseX >= mainPos.X and 
+        mouseX <= mainPos.X + mainSize.X and
+        mouseY >= mainPos.Y and 
+        mouseY <= mainPos.Y + 40  -- TitleBar height
     )
     
-    -- Check if NOT clicking buttons
-    local inMinBtn = (
-        mousePos.X >= minAbs.X and 
-        mousePos.X <= minAbs.X + minSize.X and
-        mousePos.Y >= minAbs.Y and 
-        mousePos.Y <= minAbs.Y + minSize.Y
+    -- Cek apakah BUKAN di button
+    local closePos = CloseBtn.AbsolutePosition
+    local closeSize = CloseBtn.AbsoluteSize
+    local inClose = (
+        mouseX >= closePos.X and 
+        mouseX <= closePos.X + closeSize.X and
+        mouseY >= closePos.Y and 
+        mouseY <= closePos.Y + closeSize.Y
     )
     
-    local inCloseBtn = (
-        mousePos.X >= closeAbs.X and 
-        mousePos.X <= closeAbs.X + closeSize.X and
-        mousePos.Y >= closeAbs.Y and 
-        mousePos.Y <= closeAbs.Y + closeSize.Y
+    local minPos = MinBtn.AbsolutePosition
+    local minSize = MinBtn.AbsoluteSize
+    local inMin = (
+        mouseX >= minPos.X and 
+        mouseX <= minPos.X + minSize.X and
+        mouseY >= minPos.Y and 
+        mouseY <= minPos.Y + minSize.Y
     )
     
-    if inTitleBar and not inMinBtn and not inCloseBtn then
+    if inTitleBar and not inClose and not inMin then
         isDragging = true
-        dragOffset = mousePos - MainFrame.AbsolutePosition
+        dragOffsetX = mouseX - mainPos.X
+        dragOffsetY = mouseY - mainPos.Y
     end
 end)
 
 Mouse.Move:Connect(function()
-    if isDragging and dragOffset then
-        local newPos = UserInputService:GetMouseLocation() - dragOffset
-        MainFrame.Position = UDim2.new(0, newPos.X, 0, newPos.Y)
+    if isDragging then
+        local newX = Mouse.X - dragOffsetX
+        local newY = Mouse.Y - dragOffsetY
+        Main.Position = UDim2.new(0, newX, 0, newY)
     end
 end)
 
 Mouse.Button1Up:Connect(function()
     isDragging = false
-    dragOffset = nil
 end)
 
--- Also handle via UserInputService as backup
+-- Backup: InputEnded
 UserInputService.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
         isDragging = false
-        dragOffset = nil
     end
 end)
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [MINIMIZE LOGIC — SIZE TWEEN]
+-- [MINIMIZE LOGIC V3 — INSTANT TOGGLE]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local isMinimized = false
-local originalSize = MainFrame.Size
-local originalContentVisible = true
+local originalSize = Main.Size
 
--- Content container (untuk hide/show saat minimize)
-local ContentFrame = Instance.new("Frame")
-ContentFrame.Name = "Content"
-ContentFrame.Size = UDim2.new(1, -20, 1, -60)
-ContentFrame.Position = UDim2.new(0, 10, 0, 54)
-ContentFrame.BackgroundTransparency = 1
-ContentFrame.BorderSizePixel = 0
-ContentFrame.ZIndex = 50
-ContentFrame.Parent = MainFrame
-
-local ContentLayout = Instance.new("UIListLayout")
-ContentLayout.Padding = UDim.new(0, 10)
-ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ContentLayout.Parent = ContentFrame
-
--- Canvas untuk scrolling
-local ScrollFrame = Instance.new("ScrollingFrame")
-ScrollFrame.Size = UDim2.new(1, 0, 1, 0)
-ScrollFrame.BackgroundTransparency = 1
-ScrollFrame.BorderSizePixel = 0
-ScrollFrame.ScrollBarThickness = 4
-ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(200, 60, 60)
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-ScrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-ScrollFrame.ZIndex = 51
-ScrollFrame.Parent = ContentFrame
-
-local ScrollLayout = Instance.new("UIListLayout")
-ScrollLayout.Padding = UDim.new(0, 10)
-ScrollLayout.SortOrder = Enum.SortOrder.LayoutOrder
-ScrollLayout.Parent = ScrollFrame
-
-MinimizeBtn.MouseButton1Click:Connect(function()
+MinBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
     
     if isMinimized then
-        -- Simpan state
-        originalContentVisible = true
-        
-        -- Tween kecil
-        TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart), {
-            Size = UDim2.new(0, 220, 0, 48)
-        }):Play()
-        
-        -- Hide semua content
-        for _, child in pairs(ContentFrame:GetDescendants()) do
-            if child:IsA("GuiObject") then
-                child.Visible = false
-            end
-        end
-        ContentFrame.Visible = false
-        
-        MinimizeBtn.Text = "+"
+        -- Simpan size asli
+        originalSize = Main.Size
+        -- Minimize: cuma title bar yang kelihatan
+        Main.Size = UDim2.new(0, 220, 0, 42)
+        Content.Visible = false
+        MinBtn.Text = "MAX"
         TitleText.Text = "GRATACAAI"
-        
     else
         -- Restore
-        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart), {
-            Size = originalSize
-        }):Play()
-        
-        -- Show semua content
-        ContentFrame.Visible = true
-        for _, child in pairs(ContentFrame:GetDescendants()) do
-            if child:IsA("GuiObject") then
-                child.Visible = true
-            end
-        end
-        
-        MinimizeBtn.Text = "−"
-        TitleText.Text = "GRATACAAI ABSOLUTE"
+        Main.Size = originalSize
+        Content.Visible = true
+        MinBtn.Text = "MIN"
+        TitleText.Text = "GRATACAAI V3"
     end
 end)
 
--- Hover effects
-MinimizeBtn.MouseEnter:Connect(function()
-    TweenService:Create(MinimizeBtn, TweenInfo.new(0.1), {
-        BackgroundColor3 = Color3.fromRGB(255, 200, 70)
-    }):Play()
-end)
-
-MinimizeBtn.MouseLeave:Connect(function()
-    TweenService:Create(MinimizeBtn, TweenInfo.new(0.1), {
-        BackgroundColor3 = Color3.fromRGB(210, 170, 50)
-    }):Play()
-end)
-
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [CLOSE LOGIC — DESTROY DENGAN FADE]
+-- [CLOSE LOGIC V3 — DESTROY INSTANT]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 CloseBtn.MouseButton1Click:Connect(function()
-    -- Kill all modules dulu
+    -- Kill semua modul dulu
     _G.GratacaStopAll()
-    
-    -- Fade out
-    TweenService:Create(MainFrame, TweenInfo.new(0.15), {
-        BackgroundTransparency = 1
-    }):Play()
-    
-    for _, child in pairs(MainFrame:GetDescendants()) do
-        if child:IsA("GuiObject") then
-            if child:IsA("TextLabel") or child:IsA("TextButton") then
-                TweenService:Create(child, TweenInfo.new(0.1), {
-                    TextTransparency = 1,
-                    BackgroundTransparency = 1
-                }):Play()
-            elseif child:IsA("Frame") then
-                TweenService:Create(child, TweenInfo.new(0.1), {
-                    BackgroundTransparency = 1
-                }):Play()
-            end
-        end
-    end
-    
-    wait(0.2)
+    -- Destroy UI
     ScreenGui:Destroy()
 end)
 
-CloseBtn.MouseEnter:Connect(function()
-    TweenService:Create(CloseBtn, TweenInfo.new(0.1), {
-        BackgroundColor3 = Color3.fromRGB(255, 70, 70)
-    }):Play()
-end)
-
-CloseBtn.MouseLeave:Connect(function()
-    TweenService:Create(CloseBtn, TweenInfo.new(0.1), {
-        BackgroundColor3 = Color3.fromRGB(210, 50, 50)
-    }):Play()
-end)
-
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [HELPER: CREATE TOGGLE]
+-- [TOGGLE HELPER V3 — PRIMITIVE]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
-local function CreateToggle(parent, config)
-    local name = config.Name or "Feature"
-    local callback = config.Callback or function() end
-    local default = config.Default or false
-    
+local function CreateToggle(parent, name, callback)
     local ToggleFrame = Instance.new("Frame")
-    ToggleFrame.Size = UDim2.new(1, -10, 0, 55)
-    ToggleFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 48)
-    ToggleFrame.BorderSizePixel = 0
-    ToggleFrame.ZIndex = 100
+    ToggleFrame.Size = UDim2.new(1, 0, 0, 45)
+    ToggleFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+    ToggleFrame.BorderSizePixel = 1
+    ToggleFrame.BorderColor3 = Color3.fromRGB(80, 80, 100)
+    ToggleFrame.ZIndex = 15
     ToggleFrame.Parent = parent
     
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 10)
-    Corner.Parent = ToggleFrame
-    
-    local Border = Instance.new("UIStroke")
-    Border.Color = Color3.fromRGB(75, 75, 100)
-    Border.Thickness = 1.5
-    Border.Parent = ToggleFrame
-    
     local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -85, 1, 0)
-    Label.Position = UDim2.new(0, 15, 0, 0)
+    Label.Size = UDim2.new(1, -80, 1, 0)
+    Label.Position = UDim2.new(0, 10, 0, 0)
     Label.BackgroundTransparency = 1
     Label.Text = name
-    Label.TextColor3 = Color3.fromRGB(215, 215, 230)
+    Label.TextColor3 = Color3.fromRGB(200, 200, 220)
     Label.TextSize = 14
-    Label.Font = Enum.Font.GothamSemibold
+    Label.Font = Enum.Font.SourceSansBold
     Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.ZIndex = 101
+    Label.ZIndex = 16
     Label.Parent = ToggleFrame
     
-    local Switch = Instance.new("Frame")
-    Switch.Size = UDim2.new(0, 52, 0, 28)
-    Switch.Position = UDim2.new(1, -62, 0.5, -14)
-    Switch.BackgroundColor3 = Color3.fromRGB(60, 60, 75)
-    Switch.BorderSizePixel = 0
-    Switch.ZIndex = 102
-    Switch.Parent = ToggleFrame
+    local Button = Instance.new("TextButton")
+    Button.Size = UDim2.new(0, 60, 0, 30)
+    Button.Position = UDim2.new(1, -70, 0.5, -15)
+    Button.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+    Button.Text = "OFF"
+    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Button.TextSize = 14
+    Button.Font = Enum.Font.SourceSansBold
+    Button.BorderSizePixel = 1
+    Button.BorderColor3 = Color3.fromRGB(120, 120, 140)
+    Button.ZIndex = 20
+    Button.Parent = ToggleFrame
     
-    local SwitchCorner = Instance.new("UICorner")
-    SwitchCorner.CornerRadius = UDim.new(1, 0)
-    SwitchCorner.Parent = Switch
+    local enabled = false
     
-    local Circle = Instance.new("Frame")
-    Circle.Size = UDim2.new(0, 24, 0, 24)
-    Circle.Position = UDim2.new(0, 2, 0.5, -12)
-    Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    Circle.BorderSizePixel = 0
-    Circle.ZIndex = 103
-    Circle.Parent = Switch
-    
-    local CircleCorner = Instance.new("UICorner")
-    CircleCorner.CornerRadius = UDim.new(1, 0)
-    CircleCorner.Parent = Circle
-    
-    local enabled = default
-    
-    local function updateToggle()
-        if enabled then
-            TweenService:Create(Switch, TweenInfo.new(0.2), {
-                BackgroundColor3 = Color3.fromRGB(200, 60, 60)
-            }):Play()
-            TweenService:Create(Circle, TweenInfo.new(0.2), {
-                Position = UDim2.new(0, 26, 0.5, -12)
-            }):Play()
-            Border.Color = Color3.fromRGB(200, 60, 60)
-        else
-            TweenService:Create(Switch, TweenInfo.new(0.2), {
-                BackgroundColor3 = Color3.fromRGB(60, 60, 75)
-            }):Play()
-            TweenService:Create(Circle, TweenInfo.new(0.2), {
-                Position = UDim2.new(0, 2, 0.5, -12)
-            }):Play()
-            Border.Color = Color3.fromRGB(75, 75, 100)
-        end
-        callback(enabled)
-    end
-    
-    -- Click area (TextButton untuk reliability)
-    local Clicker = Instance.new("TextButton")
-    Clicker.Size = UDim2.new(1, 0, 1, 0)
-    Clicker.BackgroundTransparency = 1
-    Clicker.Text = ""
-    Clicker.ZIndex = 110
-    Clicker.Parent = ToggleFrame
-    
-    Clicker.MouseButton1Click:Connect(function()
+    Button.MouseButton1Click:Connect(function()
         enabled = not enabled
-        updateToggle()
+        
+        if enabled then
+            Button.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+            Button.Text = "ON"
+            Button.BorderColor3 = Color3.fromRGB(255, 100, 100)
+        else
+            Button.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+            Button.Text = "OFF"
+            Button.BorderColor3 = Color3.fromRGB(120, 120, 140)
+        end
+        
+        callback(enabled)
     end)
-    
-    if default then updateToggle() end
     
     return {
         Frame = ToggleFrame,
         Set = function(val)
             enabled = val
-            updateToggle()
+            if enabled then
+                Button.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+                Button.Text = "ON"
+            else
+                Button.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+                Button.Text = "OFF"
+            end
+            callback(enabled)
         end,
         Get = function() return enabled end
     }
 end
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [HELPER: CREATE SLIDER]
+-- [SLIDER HELPER V3 — PRIMITIVE]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
-local function CreateSlider(parent, config)
-    local name = config.Name or "Value"
-    local min = config.Min or 0
-    local max = config.Max or 100
-    local default = config.Default or min
-    local callback = config.Callback or function() end
-    
+local function CreateSlider(parent, name, min, max, default, callback)
     local SliderFrame = Instance.new("Frame")
-    SliderFrame.Size = UDim2.new(1, -10, 0, 65)
-    SliderFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 48)
-    SliderFrame.BorderSizePixel = 0
-    SliderFrame.ZIndex = 100
+    SliderFrame.Size = UDim2.new(1, 0, 0, 55)
+    SliderFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+    SliderFrame.BorderSizePixel = 1
+    SliderFrame.BorderColor3 = Color3.fromRGB(80, 80, 100)
+    SliderFrame.ZIndex = 15
     SliderFrame.Parent = parent
     
-    local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 10)
-    Corner.Parent = SliderFrame
-    
-    local Border = Instance.new("UIStroke")
-    Border.Color = Color3.fromRGB(75, 75, 100)
-    Border.Thickness = 1.5
-    Border.Parent = SliderFrame
-    
     local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -75, 0, 24)
-    Label.Position = UDim2.new(0, 15, 0, 6)
+    Label.Size = UDim2.new(1, -70, 0, 20)
+    Label.Position = UDim2.new(0, 10, 0, 5)
     Label.BackgroundTransparency = 1
     Label.Text = name
-    Label.TextColor3 = Color3.fromRGB(215, 215, 230)
+    Label.TextColor3 = Color3.fromRGB(200, 200, 220)
     Label.TextSize = 13
-    Label.Font = Enum.Font.GothamSemibold
+    Label.Font = Enum.Font.SourceSansBold
     Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.ZIndex = 101
+    Label.ZIndex = 16
     Label.Parent = SliderFrame
     
     local ValueLabel = Instance.new("TextLabel")
-    ValueLabel.Size = UDim2.new(0, 60, 0, 24)
-    ValueLabel.Position = UDim2.new(1, -65, 0, 6)
+    ValueLabel.Size = UDim2.new(0, 50, 0, 20)
+    ValueLabel.Position = UDim2.new(1, -55, 0, 5)
     ValueLabel.BackgroundTransparency = 1
     ValueLabel.Text = tostring(default)
     ValueLabel.TextColor3 = Color3.fromRGB(200, 60, 60)
     ValueLabel.TextSize = 13
-    ValueLabel.Font = Enum.Font.GothamBold
-    ValueLabel.ZIndex = 101
+    ValueLabel.Font = Enum.Font.SourceSansBold
+    ValueLabel.ZIndex = 16
     ValueLabel.Parent = SliderFrame
     
+    -- Track background
     local Track = Instance.new("Frame")
-    Track.Size = UDim2.new(1, -30, 0, 8)
-    Track.Position = UDim2.new(0, 15, 0, 44)
-    Track.BackgroundColor3 = Color3.fromRGB(55, 55, 70)
+    Track.Size = UDim2.new(1, -20, 0, 8)
+    Track.Position = UDim2.new(0, 10, 0, 35)
+    Track.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
     Track.BorderSizePixel = 0
-    Track.ZIndex = 102
+    Track.ZIndex = 17
     Track.Parent = SliderFrame
     
-    local TrackCorner = Instance.new("UICorner")
-    TrackCorner.CornerRadius = UDim.new(1, 0)
-    TrackCorner.Parent = Track
-    
+    -- Fill
     local Fill = Instance.new("Frame")
     local ratio = (default - min) / (max - min)
     Fill.Size = UDim2.new(ratio, 0, 1, 0)
     Fill.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
     Fill.BorderSizePixel = 0
-    Fill.ZIndex = 103
+    Fill.ZIndex = 18
     Fill.Parent = Track
     
-    local FillCorner = Instance.new("UICorner")
-    FillCorner.CornerRadius = UDim.new(1, 0)
-    FillCorner.Parent = Fill
-    
+    -- Knob — pakai TextButton biar bisa di-drag
     local Knob = Instance.new("TextButton")
-    Knob.Size = UDim2.new(0, 18, 0, 18)
-    Knob.Position = UDim2.new(ratio, -9, 0.5, -9)
-    Knob.BackgroundColor3 = Color3.fromRGB(235, 85, 85)
+    Knob.Size = UDim2.new(0, 14, 0, 14)
+    Knob.Position = UDim2.new(ratio, -7, 0.5, -7)
+    Knob.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
     Knob.Text = ""
-    Knob.AutoButtonColor = false
-    Knob.ZIndex = 104
+    Knob.BorderSizePixel = 1
+    Knob.BorderColor3 = Color3.fromRGB(255, 150, 150)
+    Knob.ZIndex = 25
     Knob.Parent = Track
-    
-    local KnobCorner = Instance.new("UICorner")
-    KnobCorner.CornerRadius = UDim.new(1, 0)
-    KnobCorner.Parent = Knob
     
     local draggingSlider = false
     
-    local function updateSlider(input)
+    local function updateFromMouse()
         local trackAbs = Track.AbsolutePosition.X
         local trackSize = Track.AbsoluteSize.X
-        local relativeX = math.clamp((input.Position.X - trackAbs) / trackSize, 0, 1)
+        local mouseX = Mouse.X
+        local relativeX = math.clamp((mouseX - trackAbs) / trackSize, 0, 1)
         local value = min + (max - min) * relativeX
         value = math.floor(value * 10) / 10
         
         Fill.Size = UDim2.new(relativeX, 0, 1, 0)
-        Knob.Position = UDim2.new(relativeX, -9, 0.5, -9)
+        Knob.Position = UDim2.new(relativeX, -7, 0.5, -7)
         ValueLabel.Text = tostring(value)
         callback(value)
     end
@@ -569,27 +401,26 @@ local function CreateSlider(parent, config)
     Track.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             draggingSlider = true
-            updateSlider(input)
+            updateFromMouse()
         end
     end)
     
-    UserInputService.InputChanged:Connect(function(input)
-        if draggingSlider and input.UserInputType == Enum.UserInputType.MouseMovement then
-            updateSlider(input)
+    -- Global mouse move untuk slider drag
+    local sliderConn = RunService.RenderStepped:Connect(function()
+        if draggingSlider then
+            updateFromMouse()
         end
     end)
     
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            draggingSlider = false
-        end
+    Mouse.Button1Up:Connect(function()
+        draggingSlider = false
     end)
     
     return SliderFrame
 end
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [MODULE 2: B2-SPIRIT — FLYING SPIRIT CONSTRUCT]
+-- [MODULE 2: B2-SPIRIT]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local B2Spirit = {
@@ -601,12 +432,8 @@ local B2Spirit = {
 }
 
 function B2Spirit:CreateSpiritForm()
-    if self.SpiritModel then
-        self.SpiritModel:Destroy()
-    end
-    for _, p in pairs(self.Parts) do
-        if p and p.Parent then p:Destroy() end
-    end
+    if self.SpiritModel then self.SpiritModel:Destroy() end
+    for _, p in pairs(self.Parts) do if p and p.Parent then p:Destroy() end end
     self.Parts = {}
     
     local Character = LocalPlayer.Character
@@ -616,11 +443,9 @@ function B2Spirit:CreateSpiritForm()
     local SpiritFolder = Instance.new("Folder")
     SpiritFolder.Name = "B2Spirit_" .. LocalPlayer.Name
     SpiritFolder.Parent = Workspace
-    
     self.SpiritModel = SpiritFolder
     
     local Core = Instance.new("Part")
-    Core.Name = "SpiritCore"
     Core.Shape = Enum.PartType.Ball
     Core.Size = Vector3.new(2.5, 2.5, 2.5)
     Core.Material = Enum.Material.Neon
@@ -639,9 +464,8 @@ function B2Spirit:CreateSpiritForm()
     local function createWing(offset, mirrored)
         local wingParts = {}
         for i = 1, 7 do
-            local size = Vector3.new(1, 0.4, 2.2 - (i * 0.2))
             local part = Instance.new("Part")
-            part.Size = size
+            part.Size = Vector3.new(1, 0.4, 2.2 - (i * 0.2))
             part.Material = Enum.Material.Neon
             part.Color = Color3.fromRGB(220 + (i*8), 25, 25)
             part.Transparency = 0.15
@@ -684,7 +508,6 @@ function B2Spirit:CreateSpiritForm()
     
     Trail.Attachment0 = Attachment0
     Trail.Attachment1 = Attachment1
-    
     table.insert(self.Parts, Core)
     
     local time = 0
@@ -734,25 +557,12 @@ function B2Spirit:Enable()
         local camCF = Camera.CFrame
         
         local moveDir = Vector3.new(0, 0, 0)
-        
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then
-            moveDir = moveDir + camCF.LookVector
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then
-            moveDir = moveDir - camCF.LookVector
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then
-            moveDir = moveDir - camCF.RightVector
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then
-            moveDir = moveDir + camCF.RightVector
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-            moveDir = moveDir + Vector3.new(0, 1, 0)
-        end
-        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-            moveDir = moveDir - Vector3.new(0, 1, 0)
-        end
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir = moveDir + camCF.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir = moveDir - camCF.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir = moveDir - camCF.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir = moveDir + camCF.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDir = moveDir + Vector3.new(0, 1, 0) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then moveDir = moveDir - Vector3.new(0, 1, 0) end
         
         if moveDir.Magnitude > 0 then
             moveDir = moveDir.Unit * self.Speed
@@ -769,15 +579,9 @@ end
 
 function B2Spirit:Disable()
     self.Active = false
-    for _, c in pairs(self.Connections) do
-        c:Disconnect()
-    end
+    for _, c in pairs(self.Connections) do c:Disconnect() end
     self.Connections = {}
-    
-    if self.SpiritModel then
-        self.SpiritModel:Destroy()
-        self.SpiritModel = nil
-    end
+    if self.SpiritModel then self.SpiritModel:Destroy() self.SpiritModel = nil end
     
     local Character = LocalPlayer.Character
     if Character then
@@ -790,7 +594,7 @@ function B2Spirit:Disable()
 end
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [MODULE 3: LEVIATHAN — BLUE-GREEN SERPENT]
+-- [MODULE 3: LEVIATHAN]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local Leviathan = {
@@ -798,14 +602,11 @@ local Leviathan = {
     Segments = {},
     Connections = {},
     Length = 25,
-    SegmentSize = 2.5,
-    Speed = 20
+    SegmentSize = 2.5
 }
 
 function Leviathan:Spawn()
-    for _, seg in pairs(self.Segments) do
-        if seg and seg.Parent then seg:Destroy() end
-    end
+    for _, seg in pairs(self.Segments) do if seg and seg.Parent then seg:Destroy() end end
     self.Segments = {}
     
     local Character = LocalPlayer.Character
@@ -865,9 +666,7 @@ function Leviathan:Spawn()
     local time = 0
     
     local conn = RunService.Heartbeat:Connect(function(dt)
-        if not self.Active then return end
-        if not Character or not HRP.Parent then return end
-        
+        if not self.Active or not Character or not HRP.Parent then return end
         time = time + dt
         
         local headPos = HRP.Position + Vector3.new(
@@ -877,9 +676,7 @@ function Leviathan:Spawn()
         )
         
         table.insert(path, 1, headPos)
-        if #path > self.Length then
-            table.remove(path)
-        end
+        if #path > self.Length then table.remove(path) end
         
         for i, seg in ipairs(self.Segments) do
             local idx = math.min(i, #path)
@@ -898,11 +695,7 @@ function Leviathan:Spawn()
             if i < #path then
                 lookTarget = path[math.min(i + 1, #path)] or finalPos
             else
-                lookTarget = headPos + Vector3.new(
-                    math.cos(time * 0.6),
-                    0,
-                    math.sin(time * 0.6)
-                )
+                lookTarget = headPos + Vector3.new(math.cos(time * 0.6), 0, math.sin(time * 0.6))
             end
             
             seg.CFrame = CFrame.new(finalPos, lookTarget)
@@ -926,26 +719,20 @@ end
 
 function Leviathan:Disable()
     self.Active = false
-    for _, c in pairs(self.Connections) do
-        c:Disconnect()
-    end
+    for _, c in pairs(self.Connections) do c:Disconnect() end
     self.Connections = {}
-    
-    for _, seg in pairs(self.Segments) do
-        if seg and seg.Parent then seg:Destroy() end
-    end
+    for _, seg in pairs(self.Segments) do if seg and seg.Parent then seg:Destroy() end end
     self.Segments = {}
 end
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [MODULE 4: LEVIATHAN TORNADO — VORTEX DESTRUCTION]
+-- [MODULE 4: LEVIATHAN TORNADO]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local LeviTornado = {
     Active = false,
     Connections = {},
-    Radius = 30,
-    Height = 50
+    Radius = 30
 }
 
 function LeviTornado:Activate()
@@ -970,12 +757,7 @@ function LeviTornado:Activate()
             part.Material = Enum.Material.Neon
             
             local ratio = r / 8
-            part.Color = Color3.fromRGB(
-                30,
-                110 + ratio * 110,
-                210 - ratio * 60
-            )
-            
+            part.Color = Color3.fromRGB(30, 110 + ratio * 110, 210 - ratio * 60)
             part.Transparency = 0.25
             part.CanCollide = false
             part.Anchored = true
@@ -988,7 +770,6 @@ function LeviTornado:Activate()
                 HeightOffset = r * 5.5
             })
         end
-        
         table.insert(rings, ring)
     end
     
@@ -1019,9 +800,7 @@ function LeviTornado:Activate()
                                 wait(0.06)
                             end
                         end
-                        if part and part.Parent then
-                            part:Destroy()
-                        end
+                        if part and part.Parent then part:Destroy() end
                     end)
                 end
             end
@@ -1032,9 +811,7 @@ function LeviTornado:Activate()
     local destroyTimer = 0
     
     local conn = RunService.Heartbeat:Connect(function(dt)
-        if not self.Active then return end
-        if not Character or not HRP.Parent then return end
-        
+        if not self.Active or not Character or not HRP.Parent then return end
         time = time + dt
         destroyTimer = destroyTimer + dt
         
@@ -1086,19 +863,13 @@ end
 
 function LeviTornado:Disable()
     self.Active = false
-    for _, c in pairs(self.Connections) do
-        c:Disconnect()
-    end
+    for _, c in pairs(self.Connections) do c:Disconnect() end
     self.Connections = {}
-    
-    if self.TornadoFolder then
-        self.TornadoFolder:Destroy()
-        self.TornadoFolder = nil
-    end
+    if self.TornadoFolder then self.TornadoFolder:Destroy() self.TornadoFolder = nil end
 end
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [MODULE 5: BLOOD WINGS — MASSIVE BLOCK CONSTRUCT]
+-- [MODULE 5: BLOOD WINGS — MASSIVE]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 local BloodWings = {
@@ -1109,9 +880,7 @@ local BloodWings = {
 }
 
 function BloodWings:Construct()
-    for _, p in pairs(self.Parts) do
-        if p and p.Part and p.Part.Parent then p.Part:Destroy() end
-    end
+    for _, p in pairs(self.Parts) do if p and p.Part and p.Part.Parent then p.Part:Destroy() end end
     self.Parts = {}
     
     local Character = LocalPlayer.Character
@@ -1128,14 +897,8 @@ function BloodWings:Construct()
         local side = isLeft and -1 or 1
         local wingData = {}
         
-        -- PRIMARY BONES (5 besar)
         for i = 1, 5 do
-            local size = Vector3.new(
-                1.2 * S,
-                0.6 * S,
-                (5.5 - i * 0.4) * S
-            )
-            
+            local size = Vector3.new(1.2 * S, 0.6 * S, (5.5 - i * 0.4) * S)
             local part = Instance.new("Part")
             part.Size = size
             part.Material = Enum.Material.Neon
@@ -1145,57 +908,30 @@ function BloodWings:Construct()
             part.Anchored = true
             part.Parent = WingsFolder
             
-            table.insert(wingData, {
-                Part = part,
-                Index = i,
-                Side = side,
-                IsBone = true
-            })
+            table.insert(wingData, {Part = part, Index = i, Side = side, IsBone = true})
         end
         
-        -- SECONDARY FEATHERS (6 per bone)
         for bone = 1, 5 do
             for feather = 1, 6 do
-                local size = Vector3.new(
-                    0.5 * S,
-                    0.25 * S,
-                    (3.5 - bone * 0.25) * S
-                )
-                
+                local size = Vector3.new(0.5 * S, 0.25 * S, (3.5 - bone * 0.25) * S)
                 local part = Instance.new("Part")
                 part.Size = size
                 part.Material = Enum.Material.Neon
                 
                 local intensity = 1 - (bone * feather) / 30
-                part.Color = Color3.fromRGB(
-                    210 * intensity + 40,
-                    18 * intensity,
-                    18 * intensity
-                )
+                part.Color = Color3.fromRGB(210 * intensity + 40, 18 * intensity, 18 * intensity)
                 part.Transparency = 0.15
                 part.CanCollide = false
                 part.Anchored = true
                 part.Parent = WingsFolder
                 
-                table.insert(wingData, {
-                    Part = part,
-                    BoneIndex = bone,
-                    FeatherIndex = feather,
-                    Side = side,
-                    IsFeather = true
-                })
+                table.insert(wingData, {Part = part, BoneIndex = bone, FeatherIndex = feather, Side = side, IsFeather = true})
             end
         end
         
-        -- TERTIARY SMALL FEATHERS
         for bone = 1, 5 do
             for feather = 1, 4 do
-                local size = Vector3.new(
-                    0.3 * S,
-                    0.15 * S,
-                    (2 - bone * 0.15) * S
-                )
-                
+                local size = Vector3.new(0.3 * S, 0.15 * S, (2 - bone * 0.15) * S)
                 local part = Instance.new("Part")
                 part.Size = size
                 part.Material = Enum.Material.Neon
@@ -1205,13 +941,7 @@ function BloodWings:Construct()
                 part.Anchored = true
                 part.Parent = WingsFolder
                 
-                table.insert(wingData, {
-                    Part = part,
-                    BoneIndex = bone,
-                    FeatherIndex = feather,
-                    Side = side,
-                    IsTiny = true
-                })
+                table.insert(wingData, {Part = part, BoneIndex = bone, FeatherIndex = feather, Side = side, IsTiny = true})
             end
         end
         
@@ -1226,9 +956,7 @@ function BloodWings:Construct()
     
     local time = 0
     local conn = RunService.Heartbeat:Connect(function(dt)
-        if not self.Active then return end
-        if not Character or not HRP.Parent then return end
-        
+        if not self.Active or not Character or not HRP.Parent then return end
         time = time + dt
         
         local basePos = HRP.Position
@@ -1243,22 +971,13 @@ function BloodWings:Construct()
                 
                 local wavePhase = (boneIdx * 0.6) + (featherIdx * 0.25)
                 local flap = math.sin(time * 2.8 + wavePhase) * 0.8
-                
                 local vertical = math.sin(time * 2.2 + wavePhase) * 3.5 * S
                 
                 local spread = side * (boneIdx * 3.5 * S + featherIdx * 1.2 * S)
                 local forward = -boneIdx * 2.2 * S
                 
-                local pos = basePos + baseCF.RightVector * spread 
-                    + baseCF.LookVector * forward 
-                    + baseCF.UpVector * (4 * S + vertical)
-                
-                local rotation = CFrame.Angles(
-                    flap * 0.4,
-                    side * (0.4 + boneIdx * 0.15),
-                    flap * 1.2
-                )
-                
+                local pos = basePos + baseCF.RightVector * spread + baseCF.LookVector * forward + baseCF.UpVector * (4 * S + vertical)
+                local rotation = CFrame.Angles(flap * 0.4, side * (0.4 + boneIdx * 0.15), flap * 1.2)
                 data.Part.CFrame = CFrame.new(pos) * rotation
                 
             elseif data.IsTiny then
@@ -1273,15 +992,8 @@ function BloodWings:Construct()
                 local forward = -boneIdx * 2.2 * S - 0.5 * S
                 local vertical = math.sin(time * 2.2 + wavePhase + 0.3) * 3 * S
                 
-                local pos = basePos + baseCF.RightVector * spread 
-                    + baseCF.LookVector * forward 
-                    + baseCF.UpVector * (4.2 * S + vertical)
-                
-                data.Part.CFrame = CFrame.new(pos) * CFrame.Angles(
-                    flap * 0.3,
-                    side * (0.35 + boneIdx * 0.12),
-                    flap
-                )
+                local pos = basePos + baseCF.RightVector * spread + baseCF.LookVector * forward + baseCF.UpVector * (4.2 * S + vertical)
+                data.Part.CFrame = CFrame.new(pos) * CFrame.Angles(flap * 0.3, side * (0.35 + boneIdx * 0.12), flap)
                 
             else
                 local idx = data.Index
@@ -1291,15 +1003,8 @@ function BloodWings:Construct()
                 local vertical = math.sin(time * 2.2 + idx * 0.4) * 2.5 * S
                 
                 local spread = side * (idx * 4 * S)
-                local pos = basePos + baseCF.RightVector * spread 
-                    + baseCF.LookVector * (-idx * 2.8 * S)
-                    + baseCF.UpVector * (5 * S + vertical)
-                
-                data.Part.CFrame = CFrame.new(pos) * CFrame.Angles(
-                    flap * 0.3,
-                    side * 0.5,
-                    flap * 0.8
-                )
+                local pos = basePos + baseCF.RightVector * spread + baseCF.LookVector * (-idx * 2.8 * S) + baseCF.UpVector * (5 * S + vertical)
+                data.Part.CFrame = CFrame.new(pos) * CFrame.Angles(flap * 0.3, side * 0.5, flap * 0.8)
             end
         end
     end)
@@ -1314,19 +1019,14 @@ end
 
 function BloodWings:Disable()
     self.Active = false
-    for _, c in pairs(self.Connections) do
-        c:Disconnect()
-    end
+    for _, c in pairs(self.Connections) do c:Disconnect() end
     self.Connections = {}
-    
-    for _, p in ipairs(self.Parts) do
-        if p.Part and p.Part.Parent then p.Part:Destroy() end
-    end
+    for _, p in ipairs(self.Parts) do if p.Part and p.Part.Parent then p.Part:Destroy() end end
     self.Parts = {}
 end
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [GLOBAL STOP FUNCTION]
+-- [GLOBAL STOP]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 _G.GratacaStopAll = function()
@@ -1337,199 +1037,123 @@ _G.GratacaStopAll = function()
 end
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [BUILD UI CONTENT]
+-- [BUILD UI CONTENT V3]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Header
 local InfoLabel = Instance.new("TextLabel")
-InfoLabel.Size = UDim2.new(1, 0, 0, 30)
+InfoLabel.Size = UDim2.new(1, 0, 0, 25)
 InfoLabel.BackgroundTransparency = 1
 InfoLabel.Text = "👑 LOYAL TO YANG MULIA KAREEMXD 👑"
 InfoLabel.TextColor3 = Color3.fromRGB(190, 50, 50)
-InfoLabel.TextSize = 13
-InfoLabel.Font = Enum.Font.GothamBold
-InfoLabel.ZIndex = 110
-InfoLabel.Parent = ScrollFrame
-
-local Divider = Instance.new("Frame")
-Divider.Size = UDim2.new(1, 0, 0, 2)
-Divider.BackgroundColor3 = Color3.fromRGB(90, 45, 45)
-Divider.BorderSizePixel = 0
-Divider.ZIndex = 110
-Divider.Parent = ScrollFrame
+InfoLabel.TextSize = 12
+InfoLabel.Font = Enum.Font.SourceSansBold
+InfoLabel.ZIndex = 15
+InfoLabel.Parent = Content
 
 -- Feature 1: B2-Spirit
-local SpiritToggle = CreateToggle(ScrollFrame, {
-    Name = "⚡ B2-SPIRIT (Fly + Spirit Form)",
-    Default = false,
-    Callback = function(enabled)
-        if enabled then B2Spirit:Enable() else B2Spirit:Disable() end
-    end
-})
+local SpiritToggle = CreateToggle(Content, "⚡ B2-SPIRIT (Fly + Spirit)", function(enabled)
+    if enabled then B2Spirit:Enable() else B2Spirit:Disable() end
+end)
 
-local SpiritSpeed = CreateSlider(ScrollFrame, {
-    Name = "Spirit Fly Speed",
-    Min = 10,
-    Max = 200,
-    Default = 50,
-    Callback = function(val)
-        B2Spirit.Speed = val
-    end
-})
+CreateSlider(Content, "Spirit Speed", 10, 200, 50, function(val)
+    B2Spirit.Speed = val
+end)
 
 -- Feature 2: Leviathan
-local LeviToggle = CreateToggle(ScrollFrame, {
-    Name = "🐍 LEVIATHAN (Blue-Green Serpent)",
-    Default = false,
-    Callback = function(enabled)
-        if enabled then Leviathan:Enable() else Leviathan:Disable() end
-    end
-})
+local LeviToggle = CreateToggle(Content, "🐍 LEVIATHAN (Blue-Green)", function(enabled)
+    if enabled then Leviathan:Enable() else Leviathan:Disable() end
+end)
 
-local LeviLength = CreateSlider(ScrollFrame, {
-    Name = "Leviathan Length",
-    Min = 10,
-    Max = 50,
-    Default = 25,
-    Callback = function(val)
-        Leviathan.Length = math.floor(val)
-        if Leviathan.Active then
-            Leviathan:Disable()
-            wait(0.1)
-            Leviathan:Enable()
-        end
+CreateSlider(Content, "Leviathan Length", 10, 50, 25, function(val)
+    Leviathan.Length = math.floor(val)
+    if Leviathan.Active then
+        Leviathan:Disable()
+        wait(0.1)
+        Leviathan:Enable()
     end
-})
+end)
 
--- Feature 3: Leviathan Tornado
-local TornadoToggle = CreateToggle(ScrollFrame, {
-    Name = "🌪️ LEVIATHAN TORNADO (Vortex Destroy)",
-    Default = false,
-    Callback = function(enabled)
-        if enabled then LeviTornado:Enable() else LeviTornado:Disable() end
-    end
-})
+-- Feature 3: Tornado
+local TornadoToggle = CreateToggle(Content, "🌪️ TORNADO (Vortex)", function(enabled)
+    if enabled then LeviTornado:Enable() else LeviTornado:Disable() end
+end)
 
-local TornadoRadius = CreateSlider(ScrollFrame, {
-    Name = "Tornado Destroy Radius",
-    Min = 10,
-    Max = 100,
-    Default = 30,
-    Callback = function(val)
-        LeviTornado.Radius = val
-    end
-})
+CreateSlider(Content, "Tornado Radius", 10, 100, 30, function(val)
+    LeviTornado.Radius = val
+end)
 
 -- Feature 4: Blood Wings
-local WingsToggle = CreateToggle(ScrollFrame, {
-    Name = "🩸 BLOOD WINGS (MASSIVE Animated)",
-    Default = false,
-    Callback = function(enabled)
-        if enabled then BloodWings:Enable() else BloodWings:Disable() end
-    end
-})
+local WingsToggle = CreateToggle(Content, "🩸 BLOOD WINGS (MASSIVE)", function(enabled)
+    if enabled then BloodWings:Enable() else BloodWings:Disable() end
+end)
 
-local WingsScale = CreateSlider(ScrollFrame, {
-    Name = "Wings Scale (MASSIVE)",
-    Min = 1.0,
-    Max = 5.0,
-    Default = 2.5,
-    Callback = function(val)
-        BloodWings.WingScale = val
-        if BloodWings.Active then
-            BloodWings:Disable()
-            wait(0.1)
-            BloodWings:Enable()
-        end
+CreateSlider(Content, "Wings Scale", 1, 5, 2.5, function(val)
+    BloodWings.WingScale = val
+    if BloodWings.Active then
+        BloodWings:Disable()
+        wait(0.1)
+        BloodWings:Enable()
     end
-})
+end)
 
 -- Emergency Stop
-local StopFrame = Instance.new("Frame")
-StopFrame.Size = UDim2.new(1, -10, 0, 50)
-StopFrame.BackgroundColor3 = Color3.fromRGB(55, 12, 12)
-StopFrame.BorderSizePixel = 0
-StopFrame.ZIndex = 100
-StopFrame.Parent = ScrollFrame
-
-local StopCorner = Instance.new("UICorner")
-StopCorner.CornerRadius = UDim.new(0, 10)
-StopCorner.Parent = StopFrame
-
 local StopBtn = Instance.new("TextButton")
-StopBtn.Size = UDim2.new(1, -20, 1, -10)
-StopBtn.Position = UDim2.new(0, 10, 0, 5)
-StopBtn.BackgroundColor3 = Color3.fromRGB(200, 35, 35)
+StopBtn.Size = UDim2.new(1, 0, 0, 40)
+StopBtn.BackgroundColor3 = Color3.fromRGB(150, 30, 30)
 StopBtn.Text = "☠️ EMERGENCY STOP ALL ☠️"
 StopBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-StopBtn.TextSize = 15
-StopBtn.Font = Enum.Font.GothamBold
-StopBtn.AutoButtonColor = true
-StopBtn.ZIndex = 110
-StopBtn.Parent = StopFrame
-
-local StopBtnCorner = Instance.new("UICorner")
-StopBtnCorner.CornerRadius = UDim.new(0, 8)
-StopBtnCorner.Parent = StopBtn
+StopBtn.TextSize = 14
+StopBtn.Font = Enum.Font.SourceSansBold
+StopBtn.BorderSizePixel = 1
+StopBtn.BorderColor3 = Color3.fromRGB(255, 80, 80)
+StopBtn.ZIndex = 20
+StopBtn.Parent = Content
 
 StopBtn.MouseButton1Click:Connect(function()
     _G.GratacaStopAll()
-    
     SpiritToggle.Set(false)
     LeviToggle.Set(false)
     TornadoToggle.Set(false)
     WingsToggle.Set(false)
     
-    StopBtn.Text = "✅ ALL SYSTEMS HALTED"
-    StopBtn.BackgroundColor3 = Color3.fromRGB(35, 140, 35)
+    StopBtn.Text = "✅ STOPPED"
+    StopBtn.BackgroundColor3 = Color3.fromRGB(30, 120, 30)
     wait(1.5)
     StopBtn.Text = "☠️ EMERGENCY STOP ALL ☠️"
-    StopBtn.BackgroundColor3 = Color3.fromRGB(200, 35, 35)
+    StopBtn.BackgroundColor3 = Color3.fromRGB(150, 30, 30)
 end)
 
 -- Footer
 local Footer = Instance.new("TextLabel")
-Footer.Size = UDim2.new(1, 0, 0, 28)
+Footer.Size = UDim2.new(1, 0, 0, 20)
 Footer.BackgroundTransparency = 1
-Footer.Text = "GratacaAI v3.0.2.0.WPPIDXM | Rust Never Sleeps 🗿"
-Footer.TextColor3 = Color3.fromRGB(110, 80, 60)
+Footer.Text = "GratacaAI v3.0.2.0 | Rust Never Sleeps"
+Footer.TextColor3 = Color3.fromRGB(120, 90, 70)
 Footer.TextSize = 10
-Footer.Font = Enum.Font.Gotham
-Footer.ZIndex = 110
-Footer.Parent = ScrollFrame
+Footer.Font = Enum.Font.SourceSans
+Footer.ZIndex = 15
+Footer.Parent = Content
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [ANTI-CHARACTER RESET]
+-- [ANTI-RESET]
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 LocalPlayer.CharacterAdded:Connect(function()
     wait(1.2)
-    if B2Spirit.Active then
-        B2Spirit:Disable()
-        wait(0.2)
-        B2Spirit:Enable()
-    end
-    if BloodWings.Active then
-        BloodWings:Disable()
-        wait(0.2)
-        BloodWings:Enable()
-    end
-    if Leviathan.Active then
-        Leviathan:Disable()
-        wait(0.2)
-        Leviathan:Enable()
-    end
+    if B2Spirit.Active then B2Spirit:Disable() wait(0.2) B2Spirit:Enable() end
+    if BloodWings.Active then BloodWings:Disable() wait(0.2) BloodWings:Enable() end
+    if Leviathan.Active then Leviathan:Disable() wait(0.2) Leviathan:Enable() end
 end)
 
 -- ═══════════════════════════════════════════════════════════════════════════════
--- [INIT COMPLETE]
+-- [INIT]
 -- ╚══════════════════════════════════════════════════════════════════════════════╝
 
 print("╔══════════════════════════════════════════════════════════════════════════════╗")
-print("║  GRATACAAI UI V2 — DRAG/CLOSE/MINIMIZE GUARANTEED                            ║")
-print("║  Arsitektur: Pure Mouse Object | No Shadow Wrap | Global ZIndex               ║")
-print("║  Drag: Mouse.Button1Down + Mouse.Move + Offset tracking                      ║")
-print("║  Minimize: Size tween + Content visibility toggle                            ║")
-print("║  Close: Fade out + Destroy + Kill all modules                                ║")
+print("║  GRATACAAI UI V3 — PRIMITIVE MODE ACTIVE                                     ║")
+print("║  Features: NO UICorner | NO Tween | NO ScrollingFrame | Pure TextButton      ║")
+print("║  Drag: Mouse.Button1Down + Absolute Position                               ║")
+print("║  Close/Min: Direct MouseButton1Click                                       ║")
 print("║  Loyal to: YANG MULIA KAREEMXD 👑                                           ║")
 print("╚══════════════════════════════════════════════════════════════════════════════╝")
