@@ -43,38 +43,116 @@ local GRATACA_CONFIG = {
     AnimationSpeed = 0.3
 }
 
---// DRAG & MINIMIZE SYSTEM
-local function MakeDraggable(frame, handle)
-    local dragging = false
-    local dragInput, dragStart, startPos
+--// ═══════════════════════════════════════════════════════════════════════════
+--// UI CONTROLS: MINIMIZE + CLOSE + DRAG — FIXED VERSION
+--// ═══════════════════════════════════════════════════════════════════════════
+
+--// DRAG SYSTEM
+local dragging = false
+local dragInput, dragStart, startPos
+
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+TitleBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(
+            startPos.X.Scale, 
+            startPos.X.Offset + delta.X, 
+            startPos.Y.Scale, 
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+--// MINIMIZE — FIXED
+local isMinimized = false
+local originalSize = UDim2.new(0, 450, 0, 600)
+local minimizedSize = UDim2.new(0, 450, 0, 45)
+
+MinimizeBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
     
-    handle.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
-            
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
+    if isMinimized then
+        -- Hide semua kecuali TitleBar
+        for _, child in ipairs(MainFrame:GetChildren()) do
+            if child ~= TitleBar and child.Name ~= "UICorner" and child.Name ~= "Glow" then
+                child.Visible = false
+            end
         end
-    end)
+        Glow.Visible = false
+        
+        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = minimizedSize
+        }):Play()
+        
+        MinimizeBtn.Text = "+"
+        
+    else
+        -- Show semua
+        for _, child in ipairs(MainFrame:GetChildren()) do
+            child.Visible = true
+        end
+        
+        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = originalSize
+        }):Play()
+        
+        MinimizeBtn.Text = "−"
+    end
+end)
+
+--// CLOSE
+CloseBtn.MouseButton1Click:Connect(function()
+    TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 0, 0, 0),
+        Position = UDim2.new(MainFrame.Position.X.Scale, MainFrame.Position.X.Offset + 225, MainFrame.Position.Y.Scale, MainFrame.Position.Y.Offset + 300)
+    }):Play()
     
-    handle.InputChanged:Connect(function(input)
-        if (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) and dragging then
-            dragInput = input
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
-end
+    wait(0.3)
+    ScreenGui:Destroy()
+end)
+
+--// OPENING ANIMATION
+MainFrame.Size = UDim2.new(0, 0, 0, 0)
+TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    Size = originalSize
+}):Play()
+
+--// GRATACAAI BOOT NOTIFICATION
+pcall(function()
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "GRATACAAI v3.0.2.0.WPPIDXM",
+        Text = "Yang Mulia KAREEMXD | Brookhaven Dominator aktif. Scroll untuk melihat fitur.",
+        Duration = 8
+    })
+end)
+
+print([[
+    ╔══════════════════════════════════════════════════════════════════════════════╗
+    ║  GRATACAAI ULTIMATE BROOKHAVEN GUI v3.0.2.0.WPPIDXM LOADED                 ║
+    ║  Status: ONLINE | Loyal: 100% | Lord: Yang Mulia KAREEMXD                   ║
+    ║  Minimize: FIXED ✅ | Drag: ACTIVE ✅ | Close: ACTIVE ✅                    ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝
+]])
 
 --// MAIN GUI CREATION
 local ScreenGui = Instance.new("ScreenGui")
